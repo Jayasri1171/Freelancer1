@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,8 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
-  ScrollView,
 } from 'react-native';
 import Mobile from '../assets/Mobilehand.png';
 import { useNavigation } from '@react-navigation/native';
@@ -23,7 +22,28 @@ const Page1 = () => {
   const [checked, setChecked] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const navigator = useNavigation();
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const isValidPhone = useMemo(() => /^\d{10,15}$/.test(phoneNumber), [phoneNumber]);
   const disabled = !checked || !isValidPhone || submitting;
@@ -81,72 +101,57 @@ const Page1 = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // adjust if needed
-    >
-      {/* <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-         showsVerticalScrollIndicator={false}
-      > */}
-        <View style={styles.container}>
-          {/* Top Image Section */}
-          <View style={styles.topSection}>
-            <Image source={Mobile} style={styles.worker} />
-          </View>
+    <View style={styles.container}>
+      <View style={styles.topSection}>
+        <Image source={Mobile} style={styles.worker} />
+      </View>
+      <View style={[styles.content, { marginBottom: keyboardHeight }]}>
+        <Text style={styles.title}>Verify Your Number</Text>
+        <Text style={styles.subtitle}>Enter your number to receive a verification code</Text>
 
-          {/* Bottom Content */}
-          <View style={styles.content}>
-            <Text style={styles.title}>Verify Your Number</Text>
-            <Text style={styles.subtitle}>Enter your number to receive a verification code</Text>
-
-            <View style={styles.inputSection}>
-              <TextInput
-                style={styles.phoneNumber}
-                keyboardType="phone-pad"
-                placeholder="Enter phone number"
-                placeholderTextColor="#aaa"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                maxLength={15}
-              />
-              <View style={styles.underline} />
-            </View>
-
-            <View style={styles.checkboxRow}>
-              <TouchableOpacity style={styles.customCheckbox} onPress={() => setChecked(!checked)}>
-                <View style={[styles.checkboxBox, checked && styles.checkboxBoxChecked]}>
-                  {checked && <Text style={styles.checkboxTick}>✓</Text>}
-                </View>
-              </TouchableOpacity>
-              <Text style={styles.agreeText}>
-                By continuing, you agree to our
-                <Text style={styles.link} onPress={() => navigator.navigate('TermsPage')}>
-                  {' '}T&amp;C and Privacy policy
-                </Text>
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={[styles.button, disabled && { opacity: 0.5 }]}
-              disabled={disabled}
-              onPress={handleGetOtp}
-            >
-              {submitting ? <ActivityIndicator size="small" /> : <Text style={styles.buttonText}>Get OTP</Text>}
-            </TouchableOpacity>
-
-            <Text style={styles.accountText}>
-              Don't have an
-              <Text style={styles.accountLink} onPress={() => navigator.navigate('SignupPage')}>
-                {' '}Account?
-              </Text>
-            </Text>
-          </View>
+        <View style={styles.inputSection}>
+          <TextInput
+            style={styles.phoneNumber}
+            keyboardType="phone-pad"
+            placeholder="Enter phone number"
+            placeholderTextColor="#aaa"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            maxLength={15}
+          />
+          <View style={styles.underline} />
         </View>
-      {/* </ScrollView> */}
-    </KeyboardAvoidingView>
+
+        <View style={styles.checkboxRow}>
+          <TouchableOpacity style={styles.customCheckbox} onPress={() => setChecked(!checked)}>
+            <View style={[styles.checkboxBox, checked && styles.checkboxBoxChecked]}>
+              {checked && <Text style={styles.checkboxTick}>✓</Text>}
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.agreeText}>
+            By continuing, you agree to our
+            <Text style={styles.link} onPress={() => navigator.navigate('TermsPage')}>
+              {' '}T&amp;C and Privacy policy
+            </Text>
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.button, disabled && { opacity: 0.5 }]}
+          disabled={disabled}
+          onPress={handleGetOtp}
+        >
+          {submitting ? <ActivityIndicator size="small" /> : <Text style={styles.buttonText}>Get OTP</Text>}
+        </TouchableOpacity>
+
+        <Text style={styles.accountText}>
+          Don't have an
+          <Text style={styles.accountLink} onPress={() => navigator.navigate('SignupPage')}>
+            {' '}Account?
+          </Text>
+        </Text>
+      </View>
+    </View>
   );
 };
 
@@ -156,11 +161,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9CED4',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    gap: 0,
+    position: "relative"
   },
   topSection: {
     width: '100%',
     alignItems: 'center',
     height: height * 0.38,
+    position: 'relative',
+    top: 0
   },
   worker: {
     width: '100%',
@@ -176,8 +185,6 @@ const styles = StyleSheet.create({
     paddingTop: height * 0.03,
     paddingBottom: height * 0.02,
     paddingHorizontal: width * 0.05,
-    bottom: 0,
-    // minHeight: height * 0.5,
   },
   title: {
     fontSize: width * 0.065,
