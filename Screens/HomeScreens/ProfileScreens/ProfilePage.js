@@ -66,7 +66,7 @@ const ProfilePage = ({ navigation }) => {
 							style={styles.modalImage}
 						/>
 						<TouchableOpacity style={styles.imageUpload}>
-							<Ionicons name="add-circle" size={28} color="black" />
+							{/* <Ionicons name="add-circle" size={28} color="black" /> */}
 						</TouchableOpacity>
 
 						{/* Input Fields */}

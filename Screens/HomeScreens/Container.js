@@ -96,7 +96,9 @@ export default function App() {
     // <NavigationContainer>
       <Tab.Navigator
         tabBar={(props) => <CustomTabBar {...props} />}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ headerShown: false ,
+           tabBarStyle: { backgroundColor: "transparent" },
+        }}
       >
         <Tab.Screen name="Home" component={HomePage} initialParams={{ loginData }} />
         <Tab.Screen name="Services" component={ServicePage} initialParams={{ loginData }} />
@@ -112,16 +114,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: 30,
-    marginBottom: 20,
-    backgroundColor: "transparent", // transparent background for the whole bar
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderRadius: 40,
+    backgroundColor: "transparent", 
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "black",
-    borderRadius: 40,
+    borderRadius: 50,
     paddingHorizontal: 20,
     paddingVertical: 10,
     flex: 1,

@@ -5,15 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import { RFValue } from "react-native-responsive-fontsize";
+
+const { width, height } = Dimensions.get("window");
 
 const HistoryPage = () => {
-  const [activeTab, setActiveTab] = useState(0); // 0=COMPLETED, 1=ONGOING, 2=REQUESTS
+  const [activeTab, setActiveTab] = useState(0);
   const pagerRef = useRef(null);
-   const route = useRoute();
+  const route = useRoute();
   const { loginData } = route.params;
 
   const tabs = ["COMPLETED", "ONGOING", "REQUESTS"];
@@ -21,33 +25,33 @@ const HistoryPage = () => {
   const [cards] = useState([
     {
       id: 1,
-      profile: require("../../assets/Splash.png"),
+      profile: require("../../assets/Profileboy.jpg"),
       date: "July 15th 2025 - 02:15 PM",
-      location: "Sriram Nagar , Paper Mill Road , RJY",
+      location: "Sriram Nagar RJY",
       service: "Washing Machine - Drum Replacement",
       earning: "₹1,550",
     },
     {
       id: 2,
-      profile: require("../../assets/Splash.png"),
+      profile: require("../../assets/Profileboy.jpg"),
       date: "July 15th 2025 - 10:15 AM",
-      location: "Sriram Nagar , Paper Mill Road , RJY",
+      location: "Sriram Nagar, RJY",
       service: "Washing Machine - Drum Replacement",
       earning: "₹1,577",
     },
     {
       id: 3,
-      profile: require("../../assets/Splash.png"),
+      profile: require("../../assets/Profileboy.jpg"),
       date: "July 14th 2025 - 10:15 AM",
-      location: "Sriram Nagar , Paper Mill Road , RJY",
+      location: "Sriram Nagar, RJY",
       service: "Washing Machine - Drum Replacement",
       earning: "₹1,691",
     },
     {
       id: 4,
-      profile: require("../../assets/Splash.png"),
+      profile: require("../../assets/Profileboy.jpg"),
       date: "July 15th 2025 - 04:15 AM",
-      location: "Sriram Nagar , Paper Mill Road , RJY",
+      location: "Sriram Nagar, RJY",
       service: "Washing Machine - Drum Replacement",
       earning: "₹1,972",
     },
@@ -55,7 +59,7 @@ const HistoryPage = () => {
 
   const handleTabPress = (index) => {
     setActiveTab(index);
-    pagerRef.current.setPage(index); // change pager page
+    pagerRef.current.setPage(index);
   };
 
   return (
@@ -63,9 +67,11 @@ const HistoryPage = () => {
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>
-          <Text style={styles.headerBold}>{loginData.data.name || "User"}! Your Works</Text>
+          <Text style={styles.headerBold}>
+            {loginData.data.name || "User"}! Your Works
+          </Text>
         </Text>
-        <MaterialIcons name="notifications-none" size={24} color="#222" />
+        <MaterialIcons name="notifications-none" size={RFValue(22)} color="#222" />
       </View>
 
       {/* Tabs */}
@@ -103,15 +109,15 @@ const HistoryPage = () => {
               <Image source={item.profile} style={styles.profileImg} />
               <View style={styles.cardDetails}>
                 <View style={styles.cardRow}>
-                  <MaterialIcons name="calendar-today" size={16} color="#222" />
+                  <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>{item.date}</Text>
                 </View>
                 <View style={styles.cardRow}>
-                  <MaterialIcons name="location-on" size={16} color="#222" />
+                  <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>{item.location}</Text>
                 </View>
                 <View style={styles.cardRow}>
-                  <MaterialIcons name="build" size={16} color="#222" />
+                  <MaterialIcons name="build" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>{item.service}</Text>
                 </View>
               </View>
@@ -129,31 +135,31 @@ const HistoryPage = () => {
         <View key="2" style={styles.page}>
           <View style={styles.card}>
             <Image
-              source={require("../../assets/Splash.png")}
+              source={require("../../assets/Profileboy.jpg")}
               style={styles.profileImg}
             />
             <View style={styles.cardDetails}>
               <View style={styles.cardRow}>
-                <MaterialIcons name="calendar-today" size={16} color="#222" />
+                <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
                 <Text style={styles.cardDetailText}>
                   Aug 15th 2025 - 10:15 AM
                 </Text>
               </View>
               <View style={styles.cardRow}>
-                <MaterialIcons name="location-on" size={16} color="#222" />
+                <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
                 <Text style={styles.cardDetailText}>
                   Sriram Nagar , Paper Mill Road , RJY
                 </Text>
               </View>
               <View style={styles.cardRow}>
-                <Feather name="tool" size={16} color="#222" />
+                <Feather name="tool" size={RFValue(14)} color="#222" />
                 <Text style={styles.cardDetailText}>
                   Washing Machine - Drum Replacement
                 </Text>
               </View>
             </View>
             <View style={styles.ProgressBox}>
-              <MaterialIcons name="access-time" size={22} color="#222" />
+              <MaterialIcons name="access-time" size={RFValue(20)} color="#222" />
               <Text style={styles.statusText}>Work In Progress</Text>
             </View>
           </View>
@@ -168,28 +174,27 @@ const HistoryPage = () => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 width: "100%",
-                gap: 18,
-                marginLeft: 14,
-                marginTop: 10,
+                paddingHorizontal: width * 0.04,
+                marginTop: height * 0.01,
               }}
             >
               <Image
-                source={require("../../assets/Splash.png")}
+                source={require("../../assets/Profileboy.jpg")}
                 style={styles.profileImg}
               />
               <View style={styles.cardDetails}>
                 <View style={styles.cardRow}>
-                  <MaterialIcons name="calendar-today" size={16} color="#222" />
+                  <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>
                     Aug 20th 2025 - 02:00 PM
                   </Text>
                 </View>
                 <View style={styles.cardRow}>
-                  <MaterialIcons name="location-on" size={16} color="#222" />
+                  <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>Lakshmi Nagar , RJY</Text>
                 </View>
                 <View style={styles.cardRow}>
-                  <Feather name="tool" size={16} color="#222" />
+                  <Feather name="tool" size={RFValue(14)} color="#222" />
                   <Text style={styles.cardDetailText}>
                     Refrigerator - Cooling Issue
                   </Text>
@@ -213,46 +218,52 @@ const HistoryPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", paddingTop: "10%",justifyContent:'center', alignItems:'center' },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: height * 0.05,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
-    marginBottom: 8,
+    paddingHorizontal: width * 0.05,
+    marginBottom: height * 0.01,
   },
-  headerText: { fontSize: 20, color: "#222", fontWeight: "400" },
-  headerBold: { fontWeight: 500, fontSize: 22, color: "#222" },
+  headerText: { fontSize: RFValue(18), color: "#222", fontWeight: "400" },
+  headerBold: { fontWeight: "600", fontSize: RFValue(20), color: "#222" },
 
   tabsRow: {
     flexDirection: "row",
     width: "90%",
     justifyContent: "space-around",
     alignItems: "center",
-    marginBottom: 10,
-    marginTop: 8,
+    marginBottom: height * 0.01,
+    marginTop: height * 0.01,
     borderBottomColor: "#D7D7D7",
     borderBottomWidth: 1,
   },
   tabText: {
-    fontSize: 15,
+    fontSize: RFValue(13),
     color: "#B0B0B0",
     fontWeight: "bold",
-    paddingBottom: 8,
+    paddingBottom: height * 0.005,
   },
   tabActiveText: { color: "#222" },
   tabUnderline: {
-    width: 60,
+    width: width * 0.15,
     height: 3,
     backgroundColor: "#222",
     borderRadius: 2,
-    marginTop: 2,
+    marginTop: height * 0.003,
   },
   tabActiveContainer: { alignItems: "center" },
 
   statusText: {
-    fontSize: 12,
+    fontSize: RFValue(11),
     color: "red",
     fontWeight: "500",
     marginTop: 4,
@@ -264,8 +275,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#D7D7D7",
     borderRadius: 15,
-    padding: 12,
-    marginVertical: 8,
+    padding: width * 0.03,
+    marginVertical: height * 0.01,
     width: "90%",
   },
   requestcard: {
@@ -273,64 +284,64 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#D7D7D7",
     borderRadius: 15,
-    padding: 12,
-    marginVertical: 8,
+    padding: width * 0.03,
+    marginVertical: height * 0.01,
     width: "90%",
     gap: 15,
   },
   profileImg: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 12,
+    width: width * 0.12,
+    height: width * 0.12,
+    borderRadius: (width * 0.12) / 2,
+    marginRight: width * 0.03,
     borderWidth: 1,
     borderColor: "black",
   },
-  cardDetails: { flex: 1 },
+  cardDetails: { flex: 1,paddingHorizontal:5 },
   cardRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
-  cardDetailText: { marginLeft: 6, fontSize: 9, color: "#222" },
+  cardDetailText: { marginLeft: 6, fontSize: RFValue(10), color: "#222" },
 
   earningBox: {
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: height * 0.007,
+    paddingHorizontal: width * 0.04,
     alignItems: "center",
     justifyContent: "center",
   },
   ProgressBox: {
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: height * 0.007,
+    paddingHorizontal: width * 0.04,
     alignItems: "center",
     justifyContent: "center",
-    width: "25%",
+    width: "28%",
     flexDirection: "column",
   },
-  earningLabel: { fontSize: 12, color: "#666", fontWeight: "500" },
-  earningValue: { fontSize: 16, color: "green", fontWeight: "bold" },
-  tipText: { fontSize: 11, color: "#444" },
+  earningLabel: { fontSize: RFValue(11), color: "#666", fontWeight: "500" },
+  earningValue: { fontSize: RFValue(14), color: "green", fontWeight: "bold" },
+  tipText: { fontSize: RFValue(10), color: "#444" },
 
   requestBtns: { flexDirection: "row", alignItems: "center", gap: 18 },
   rejectBtn: {
     backgroundColor: "#F44336",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: height * 0.007,
+    paddingHorizontal: width * 0.04,
     borderRadius: 6,
   },
   acceptBtn: {
     backgroundColor: "#4CAF50",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: height * 0.007,
+    paddingHorizontal: width * 0.04,
     borderRadius: 6,
   },
-  btnText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
+  btnText: { color: "#fff", fontWeight: "bold", fontSize: RFValue(11) },
 
   page: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 10,
+    paddingTop: height * 0.01,
   },
 });
 
