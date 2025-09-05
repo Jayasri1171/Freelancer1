@@ -11,10 +11,17 @@ import Container from './Screens/HomeScreens/Container';
 import HomePage from './Screens/HomeScreens/HomePage';
 import NotificationCard from './Screens/NotificationCard';
 import Mainrouting from './Screens/Mainrouting';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function App() {
   return (
-    <Mainrouting />
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <Mainrouting />
+      </SafeAreaView>
+    </SafeAreaProvider>
+
     //  <Splashscreen />
     // <Page1 />
     // <Otpscreen />

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput , KeyboardAvoidingView, Platform} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import Mobile from '../assets/Mobilehand.png';
-import { useNavigation , useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const Otpscreen = () => {
     const route = useRoute();
-    const {loginData } = route.params;
+    const { loginData } = route.params;
     navigator = useNavigation();
     const [checked, setChecked] = useState(false);
     const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
@@ -46,75 +46,75 @@ const Otpscreen = () => {
 
     return (
         <KeyboardAvoidingView
-              style={{ flex: 1 }}
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // adjust if needed
-            >
-        <View style={styles.container}>
-            <View style={styles.topSection}>
-                <Image source={Mobile} style={styles.worker} />
-            </View>
-            <View style={styles.content}>
-                <Text style={styles.title}>Verify Your Number</Text>
-                <Text style={styles.subtitle}>
-                    Enter the OTP sent to your number
-                </Text>
-                <View style={styles.otpSection}>
-                    {otpDigits.map((digit, idx) => (
-                        <TextInput
-                            key={idx}
-                            ref={inputs[idx]}
-                            style={styles.otpBox}
-                            value={digit}
-                            onChangeText={text => handleChange(text, idx)}
-                            keyboardType="number-pad"
-                            maxLength={1}
-                            textAlign="center"
-                            selectionColor="#2859C5"
-                            onKeyPress={e => handleKeyPress(e, idx)}
-                        />
-                    ))}
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+        >
+            <View style={styles.container}>
+                <View style={styles.topSection}>
+                    <Image source={Mobile} style={styles.worker} />
                 </View>
-                <Text style={styles.resendText}>
-                    Didn't receive the code?{' '}
-                    <Text
-                        style={[
-                            styles.resendLink,
-                            { color: resendTimer === 0 ? '#2859C5' : '#aaa' }
-                        ]}
-                        onPress={handleResend}
-                        disabled={resendTimer !== 0}
-                    >
-                        Resend{resendTimer > 0 ? ` (${resendTimer}s)` : ''}
+                <View style={styles.content}>
+                    <Text style={styles.title}>Verify Your Number</Text>
+                    <Text style={styles.subtitle}>
+                        Enter the OTP sent to your number
                     </Text>
-                </Text>
-                <View style={styles.checkboxRow}>
-                    <TouchableOpacity
-                        style={styles.customCheckbox}
-                        onPress={() => setChecked(!checked)}
-                        activeOpacity={0.7}
-                    >
-                        <View style={[
-                            styles.checkboxBox,
-                            checked && styles.checkboxBoxChecked
-                        ]}>
-                            {checked && <Text style={styles.checkboxTick}>✓</Text>}
-                        </View>
+                    <View style={styles.otpSection}>
+                        {otpDigits.map((digit, idx) => (
+                            <TextInput
+                                key={idx}
+                                ref={inputs[idx]}
+                                style={styles.otpBox}
+                                value={digit}
+                                onChangeText={text => handleChange(text, idx)}
+                                keyboardType="number-pad"
+                                maxLength={1}
+                                textAlign="center"
+                                selectionColor="#2859C5"
+                                onKeyPress={e => handleKeyPress(e, idx)}
+                            />
+                        ))}
+                    </View>
+                    <Text style={styles.resendText}>
+                        Didn't receive the code?{' '}
+                        <Text
+                            style={[
+                                styles.resendLink,
+                                { color: resendTimer === 0 ? '#2859C5' : '#aaa' }
+                            ]}
+                            onPress={handleResend}
+                            disabled={resendTimer !== 0}
+                        >
+                            Resend{resendTimer > 0 ? ` (${resendTimer}s)` : ''}
+                        </Text>
+                    </Text>
+                    <View style={styles.checkboxRow}>
+                        <TouchableOpacity
+                            style={styles.customCheckbox}
+                            onPress={() => setChecked(!checked)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[
+                                styles.checkboxBox,
+                                checked && styles.checkboxBoxChecked
+                            ]}>
+                                {checked && <Text style={styles.checkboxTick}>✓</Text>}
+                            </View>
+                        </TouchableOpacity>
+                        <Text style={styles.agreeText}>
+                            By continuing, you agree to our
+                            <Text style={styles.link}> T&amp;C and Privacy policy</Text>
+                        </Text>
+                    </View>
+                    <TouchableOpacity style={styles.button} onPress={() => navigator.navigate("Container", { loginData: loginData })}>
+                        <Text style={styles.buttonText}>Verify</Text>
                     </TouchableOpacity>
-                    <Text style={styles.agreeText}>
-                        By continuing, you agree to our
-                        <Text style={styles.link}> T&amp;C and Privacy policy</Text>
+                    <Text style={styles.accountText}>
+                        Don't have an
+                        <Text style={styles.accountLink} onPress={() => navigator.navigate("SignupPage")}> Account?</Text>
                     </Text>
                 </View>
-                <TouchableOpacity style={styles.button} onPress={() => navigator.navigate("Container", {loginData:loginData})}>
-                    <Text style={styles.buttonText}>Verify</Text>
-                </TouchableOpacity>
-                <Text style={styles.accountText}>
-                    Don't have an
-                    <Text style={styles.accountLink} onPress={() => navigator.navigate("SignupPage")}> Account?</Text>
-                </Text>
             </View>
-        </View>
         </KeyboardAvoidingView>
     );
 };
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'flex-end',
     },
     worker: {
-        width:'100%',
+        width: '100%',
         height: '100%',
         resizeMode: 'contain',
         // marginTop: 18,
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 50,
         alignItems: 'center',
         paddingTop: '10%',
-        paddingBottom:'10%',
-        paddingHorizontal:'3%',
+        paddingBottom: '10%',
+        paddingHorizontal: '3%',
         // position: 'absolute',
         bottom: 0,
         minHeight: '50%',
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom:'3%',
-        marginTop:'3%',
+        marginBottom: '3%',
+        marginTop: '3%',
     },
     otpBox: {
         width: 44,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     resendText: {
         fontSize: 13,
         color: '#444',
-        marginBottom:'18%',
+        marginBottom: '18%',
         fontFamily: 'Montserrat',
         textAlign: 'center',
     },
