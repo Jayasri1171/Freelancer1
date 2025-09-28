@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { Avatar } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -9,11 +9,37 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 const ProfileLocation = () => {
    const route = useRoute();
   const { loginData } = route.params;
-  const [locations, setLocations] = useState([
-    { id: "1", name: "CRTI Area", active: true },
-    { id: "2", name: "NarayanaPuram", active: true },
-  ]);
+  const [profileImage, setProfileImage] = useState(require("../../../assets/Profileboy.jpg"));
+  const [locations, setLocations] = useState(loginData.data.location || []);
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+          try {
+            // Hit getProfile API
+            const res = await fetch('https://cube-backend-service.onrender.com/api/franchise/getProfile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ phone: loginData.data.phone, name: loginData.data.name }),
+            });
+    
+            if (!res.ok) throw new Error(`Status: ${res.status}`);
+    
+            const data = await res.json();
+            if (data?.signedUrl) {
+              setProfileImage({ uri: data.signedUrl }); // backend returns profile URL
+            } else {
+              
+              setProfileImage(profileImage); // fallback default
+            }
+          } catch (err) {
+            console.log("Error fetching profile:", err);
+            setProfileImage(profileImage); // fallback default
+          }
+        };
+    
+        fetchProfile();
+      }, []);
 
   return (
     <View style={styles.container}>
@@ -31,7 +57,7 @@ const ProfileLocation = () => {
       <View style={styles.profileRow}>
         <Avatar.Image
           size={45}
-          source={require("../../../assets/Profileboy.jpg")}
+          source={profileImage}
         />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.greeting}>Hello {loginData.data.name},</Text>
@@ -44,7 +70,7 @@ const ProfileLocation = () => {
 
       {/* Dropdown Placeholder */}
       <TouchableOpacity style={styles.dropdown}>
-        <Text style={styles.dropdownText}>Narsapuram</Text>
+        <Text style={styles.dropdownText}>{locations}</Text>
         <MaterialIcons name="arrow-drop-down" size={22} color="#444" />
       </TouchableOpacity>
 
@@ -56,22 +82,23 @@ const ProfileLocation = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 30,
-    paddingTop: '10%'
+    paddingTop: '5%'
    },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   iconBtn: {
     backgroundColor: "#fff",
     padding: 8,
     borderRadius: 12,
-    elevation: 2,
+    elevation: 10,
+    
   },
-  profileRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
-  greeting: { fontSize: 14, color: "#444" },
-  subGreeting: { fontSize: 18, fontWeight: "500", color: "#000" },
+  profileRow: { flexDirection: "row", alignItems: "center", marginBottom: 20, gap: 10 },
+  greeting: { fontSize: 12, color: "#444" },
+  subGreeting: { fontSize: 16, fontWeight: "500", color: "#000" },
   sectionTitle: { fontSize: 20, fontWeight: "600", marginVertical: 10 },
   dropdown: {
     flexDirection: "row",

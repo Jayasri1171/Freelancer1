@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -10,8 +10,35 @@ const ProfileLanguage = () => {
     const [selectedLang, setSelectedLang] = useState("English");
     const navigation = useNavigation();
     const route = useRoute();
+    const [profileImage, setProfileImage] = useState(require("../../../assets/Profileboy.jpg"));
     const { loginData } = route.params;
-
+     useEffect(() => {
+            const fetchProfile = async () => {
+              try {
+                // Hit getProfile API
+                const res = await fetch('https://cube-backend-service.onrender.com/api/franchise/getProfile', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ phone: loginData.data.phone, name: loginData.data.name }),
+                });
+        
+                if (!res.ok) throw new Error(`Status: ${res.status}`);
+        
+                const data = await res.json();
+                if (data?.signedUrl) {
+                  setProfileImage({ uri: data.signedUrl }); // backend returns profile URL
+                } else {
+                  
+                  setProfileImage(profileImage); // fallback default
+                }
+              } catch (err) {
+                console.log("Error fetching profile:", err);
+                setProfileImage(profileImage); // fallback default
+              }
+            };
+        
+            fetchProfile();
+          }, []);
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -29,7 +56,7 @@ const ProfileLanguage = () => {
                 <View style={styles.profileRow}>
                     <Avatar.Image
                         size={55}
-                        source={require("../../../assets/Profileboy.jpg")}
+                        source={profileImage}
                     />
                     <View style={{ marginLeft: 10 }}>
                         <Text style={styles.greeting}>Hello {loginData.data.name},</Text>
@@ -73,30 +100,22 @@ const ProfileLanguage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1, backgroundColor: "#fff", padding: 20,
-        paddingTop: '10%',
+        paddingTop: '5%',
     },
     headerRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 40,
+        marginBottom: 30,
     },
-    iconBtn: {
-        backgroundColor: "#f6f6f6",
-        padding: 8,
-        borderRadius: 12,
-        elevation: 2,
-    },
-    iconBtn: {
-        backgroundColor: "#f6f6f6",
-        padding: 8,
-        borderRadius: 12,
-        elevation: 2,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    profileRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
-    greeting: { fontSize: 14, color: "#444" },
-    subGreeting: { fontSize: 14, fontWeight: "600", color: "#000" },
+   iconBtn: {
+    backgroundColor: "#fff",
+    padding: 8,
+    borderRadius: 12,
+    elevation: 10,
+   },
+    profileRow: { flexDirection: "row", alignItems: "center", marginBottom: 20, gap:10 },
+    greeting: { fontSize: 12, color: "#444" },
+    subGreeting: { fontSize: 16, fontWeight: "600", color: "#000" },
     sectionTitle: { fontSize: 18, fontWeight: "600", marginVertical: 10 },
     dropdown: {
         backgroundColor: "#eee",

@@ -71,7 +71,7 @@ const Container = () => {
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          tabBarStyle: { backgroundColor: "transparent", elevation: 0 }, // fully transparent
+          tabBarStyle: { backgroundColor: "tranparent", elevation: 0 }, // fully transparent
         }}
       >
         <Tab.Screen

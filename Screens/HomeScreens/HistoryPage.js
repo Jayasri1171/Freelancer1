@@ -291,7 +291,7 @@ console.log(orderPayload)
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>
-          Kumar! <Text style={styles.headerBold}>Your List</Text>
+          <Text style={styles.headerBold}> {loginData.data.name}! Your List</Text>
         </Text>
         <MaterialIcons name="notifications-none" size={26} color="#000" />
       </View>

@@ -139,6 +139,7 @@ const ProfilePage = ({ navigation }) => {
 			if (changesMade) {
 				Alert.alert("Success", "Changes saved successfully!");
 				// setProfileImage(ProfileImage);
+				setModalVisible(false);
 			}
 		} catch (error) {
 			console.error("Error saving changes:", error);

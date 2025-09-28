@@ -11,6 +11,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { LineChart } from "react-native-chart-kit";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
+
 
 const { width, height } = Dimensions.get("window"); // Get device dimensions
 
@@ -98,7 +100,7 @@ const HomePage = () => {
               labels: ["0D", "5D", "10D", "15D", "20D", "25D", "30D"], // X-axis
               datasets: [
                 {
-                  data: [15,14,15,13,16,15,13,17,12,15,15,17,14,18,13,19,18,15,17,16,20,30], // Y-axis values
+                  data: [15, 14, 15, 13, 16, 15, 13, 17, 12, 15, 15, 17, 14, 18, 13, 19, 18, 15, 17, 16, 20, 30], // Y-axis values
                   color: (opacity = 1) => `rgba(255, 255, 0, ${opacity})`,
                   strokeWidth: 2,
                   color: () => `#ffff00`,
@@ -107,8 +109,8 @@ const HomePage = () => {
             }}
             width={width * 0.9}
             height={height * 0.25}
-            fromZero={true}  
-             segments={4}  
+            fromZero={true}
+            segments={4}
             withDots={false}            // no round dots
             withInnerLines={false}      // remove grid lines inside
             withOuterLines={true}       // keep axis lines
@@ -127,7 +129,7 @@ const HomePage = () => {
               fillShadowGradientFrom: "#ffff00",
               fillShadowGradientTo: "#000",
               fillShadowGradientFromOpacity: 0.4,
-              fillShadowGradientToOpacity:1,
+              fillShadowGradientToOpacity: 1,
             }}
             style={{
               borderRadius: 18,
@@ -140,11 +142,22 @@ const HomePage = () => {
         <View style={styles.statsRow}>
           <View style={styles.targetBox}>
             <Text style={styles.serviceboxheader}>Service Target</Text>
-            <View style={styles.circleOuter}>
-              <View style={styles.circleInner}>
-                <Text style={styles.targetPercent}>60%</Text>
-              </View>
-            </View>
+
+            <AnimatedCircularProgress
+              size={100} // circle size
+              width={8} // stroke width
+              fill={60}  // percentage (dynamic: use (score/target)*100)
+              tintColor="#F2FF00"
+              backgroundColor="#444"
+              rotation={0} // start from top
+              lineCap="round"
+              style={{ marginVertical: 10 }}
+            >
+              {(fill) => (
+                <Text style={styles.targetPercent}>{`${Math.round(fill)}%`}</Text>
+              )}
+            </AnimatedCircularProgress>
+
             <View style={styles.targetDetails}>
               <View style={styles.targetDetailBox}>
                 <Text style={styles.targetSub}>Target : 100</Text>
@@ -160,6 +173,7 @@ const HomePage = () => {
               </View>
             </View>
           </View>
+
 
           <View style={styles.statsCol}>
             <View style={styles.statsCard}>
@@ -223,10 +237,11 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "transparent",
+    // backgroundColor: "#fff",
     paddingTop: height * 0.04,
     alignItems: "center",
     paddingHorizontal: 7,
+    // minHeight: height-100,
   },
   headerRow: {
     flexDirection: "row",
@@ -263,6 +278,11 @@ const styles = StyleSheet.create({
     fontSize: width * 0.035,
     color: "#888",
     marginBottom: 4,
+  },
+  targetPercent: {
+    fontSize: width * 0.045,
+    fontWeight: "bold",
+    color: "#fff",
   },
   chartBox: {
     backgroundColor: "#222",
