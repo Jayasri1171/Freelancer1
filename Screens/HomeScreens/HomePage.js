@@ -93,7 +93,6 @@ const HomePage = () => {
         </View>
 
         {/* Chart */}
-        {/* Chart */}
         <View style={styles.chartBox}>
           <LineChart
             data={{
@@ -136,7 +135,6 @@ const HomePage = () => {
             }}
           />
         </View>
-
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
@@ -356,14 +354,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: width * 0.03,
     marginBottom: 2,
-    fontWeight: 500,
+    fontWeight:500,
 
   },
   targetDesc: {
     color: "#fff",
     fontSize: width * 0.02,
     marginTop: 2,
-    fontWeight: 500,
+    fontWeight:500,
   },
   statsCol: {
     width: "48%",
