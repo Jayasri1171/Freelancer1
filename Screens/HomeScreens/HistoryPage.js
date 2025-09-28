@@ -5,11 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  FlatList,
   Dimensions,
+  ScrollView,
+  Animated,
 } from "react-native";
 import PagerView from "react-native-pager-view";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { RFValue } from "react-native-responsive-fontsize";
 
 const { width, height } = Dimensions.get("window");
@@ -17,43 +19,94 @@ const { width, height } = Dimensions.get("window");
 const HistoryPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const pagerRef = useRef(null);
-  const route = useRoute();
-  const { loginData } = route.params;
 
-  const tabs = ["COMPLETED", "ONGOING", "REQUESTS"];
+  const tabs = ["PRODUCTS", "COMPLETED"];
 
-  const [cards] = useState([
+  const products = [
+    { id: 1, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+    { id: 2, name: "Pot Curd", price: 70, qty: 30, subtitle: "Pot Curd", image: require("../../assets/potCurd.png") },
+    { id: 3, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 4, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 5, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 6, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 7, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 8, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+    { id: 9, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+    { id: 10, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+    { id: 11, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+    { id: 12, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+    { id: 13, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+
+  ];
+
+  const [completedOrders, setCompletedOrders] = useState([
     {
       id: 1,
-      profile: require("../../assets/Profileboy.jpg"),
-      date: "July 15th 2025 - 02:15 PM",
-      location: "Sriram Nagar RJY",
-      service: "Washing Machine - Drum Replacement",
-      earning: "₹1,550",
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+      ],
     },
     {
       id: 2,
-      profile: require("../../assets/Profileboy.jpg"),
-      date: "July 15th 2025 - 10:15 AM",
-      location: "Sriram Nagar, RJY",
-      service: "Washing Machine - Drum Replacement",
-      earning: "₹1,577",
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Pot Curd", qty: 100, price: 7000, image: require("../../assets/potCurd.png") },
+      ],
     },
     {
       id: 3,
-      profile: require("../../assets/Profileboy.jpg"),
-      date: "July 14th 2025 - 10:15 AM",
-      location: "Sriram Nagar, RJY",
-      service: "Washing Machine - Drum Replacement",
-      earning: "₹1,691",
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+      ],
     },
     {
       id: 4,
-      profile: require("../../assets/Profileboy.jpg"),
-      date: "July 15th 2025 - 04:15 AM",
-      location: "Sriram Nagar, RJY",
-      service: "Washing Machine - Drum Replacement",
-      earning: "₹1,972",
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Pot Curd", qty: 100, price: 7000, image: require("../../assets/potCurd.png") },
+      ],
+    }, {
+      id: 5,
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+        { name: "Curd Rice", qty: 120, price: 6000, image: require("../../assets/curdRice.png") },
+      ],
+    },
+    {
+      id: 6,
+      date: "17/02/2025",
+      day: "Saturday",
+      time: "15:15",
+      expanded: false,
+      products: [
+        { name: "Pot Curd", qty: 100, price: 7000, image: require("../../assets/potCurd.png") },
+      ],
     },
   ]);
 
@@ -62,16 +115,35 @@ const HistoryPage = () => {
     pagerRef.current.setPage(index);
   };
 
+  const toggleExpand = (orderId) => {
+    setCompletedOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, expanded: !o.expanded } : o))
+    );
+  };
+
+  /** --- Scrollbar Logic --- */
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [contentHeight, setContentHeight] = useState(1);
+  const [visibleHeight, setVisibleHeight] = useState(1);
+
+  const INDICATOR_HEIGHT = 80;
+
+  const thumbHeight = visibleHeight * (visibleHeight / Math.max(contentHeight, 1));
+
+  const translateY = scrollY.interpolate({
+    inputRange: [0, Math.max(contentHeight - visibleHeight, 1)],
+    outputRange: [0, Math.max(visibleHeight - thumbHeight, 1)],
+    extrapolate: "clamp",
+  });
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>
-          <Text style={styles.headerBold}>
-            {loginData.data.name || "User"}! Your Works
-          </Text>
+          Kumar! <Text style={styles.headerBold}>Your List</Text>
         </Text>
-        <MaterialIcons name="notifications-none" size={RFValue(22)} color="#222" />
+        <MaterialIcons name="notifications-none" size={26} color="#000" />
       </View>
 
       {/* Tabs */}
@@ -80,7 +152,7 @@ const HistoryPage = () => {
           <TouchableOpacity
             key={tab}
             onPress={() => handleTabPress(index)}
-            style={styles.tabActiveContainer}
+            style={styles.tabContainer}
           >
             <Text
               style={[
@@ -95,122 +167,138 @@ const HistoryPage = () => {
         ))}
       </View>
 
-      {/* Swipeable Pages */}
+      {/* Pager */}
       <PagerView
         style={{ flex: 1, width: "100%" }}
         initialPage={0}
         ref={pagerRef}
         onPageSelected={(e) => setActiveTab(e.nativeEvent.position)}
       >
-        {/* COMPLETED */}
+        {/* PRODUCTS */}
         <View key="1" style={styles.page}>
-          {cards.map((item) => (
-            <View key={item.id} style={styles.card}>
-              <Image source={item.profile} style={styles.profileImg} />
-              <View style={styles.cardDetails}>
-                <View style={styles.cardRow}>
-                  <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>{item.date}</Text>
+          <View style={{ flexDirection: "row", flex: 1, width: "90%" }}>
+            <Animated.FlatList
+              data={products}
+              keyExtractor={(item) => item.id.toString()}
+              showsVerticalScrollIndicator={false}
+              onLayout={(e) => setVisibleHeight(e.nativeEvent.layout.height)}
+              onContentSizeChange={(w, h) => setContentHeight(h)}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: false }
+              )}
+              renderItem={({ item }) => (
+                <View style={styles.productRow}>
+                  <Image source={item.image} style={styles.productImg} />
+                  <View style={{ flex: 1, gap: 5 }}>
+                    <Text style={styles.productName}>{item.name}</Text>
+                    <Text style={styles.productSubtitle}>{item.subtitle}</Text>
+                    <Text style={styles.productPrice}>₹ {item.price}.00</Text>
+                  </View>
+                  <View style={styles.qtyBox}>
+                    <TouchableOpacity style={styles.circleBtn}>
+                      <Text style={styles.circleBtnText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.qtyText}>{item.qty}</Text>
+                    <TouchableOpacity style={styles.circleBtn1}>
+                      <Text style={styles.circleBtnText1}>+</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.cardRow}>
-                  <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>{item.location}</Text>
-                </View>
-                <View style={styles.cardRow}>
-                  <MaterialIcons name="build" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>{item.service}</Text>
-                </View>
-              </View>
-
-              <View style={styles.earningBox}>
-                <Text style={styles.earningLabel}>Earning</Text>
-                <Text style={styles.earningValue}>{item.earning}</Text>
-                <Text style={styles.tipText}>+ Pro Tips</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* ONGOING */}
-        <View key="2" style={styles.page}>
-          <View style={styles.card}>
-            <Image
-              source={require("../../assets/Profileboy.jpg")}
-              style={styles.profileImg}
+              )}
             />
-            <View style={styles.cardDetails}>
-              <View style={styles.cardRow}>
-                <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
-                <Text style={styles.cardDetailText}>
-                  Aug 15th 2025 - 10:15 AM
-                </Text>
-              </View>
-              <View style={styles.cardRow}>
-                <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
-                <Text style={styles.cardDetailText}>
-                  Sriram Nagar , Paper Mill Road , RJY
-                </Text>
-              </View>
-              <View style={styles.cardRow}>
-                <Feather name="tool" size={RFValue(14)} color="#222" />
-                <Text style={styles.cardDetailText}>
-                  Washing Machine - Drum Replacement
-                </Text>
-              </View>
+
+            {/* Custom Scrollbar */}
+            <View style={[styles.scrollbarTrack, { height: visibleHeight }]}>
+              <Animated.View
+                style={[
+                  styles.scrollbarThumb,
+                  { height: thumbHeight, transform: [{ translateY }] },
+                ]}
+              />
             </View>
-            <View style={styles.ProgressBox}>
-              <MaterialIcons name="access-time" size={RFValue(20)} color="#222" />
-              <Text style={styles.statusText}>Work In Progress</Text>
+          </View>
+
+          {/* Bottom summary */}
+          <View style={styles.summaryBox}>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Order Amount</Text>
+              <Text style={styles.summaryValue}>₹16522.00</Text>
             </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Delivery</Text>
+              <Text style={styles.summaryValue}>₹150.00</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.totalLabel}>Total Payment</Text>
+              <Text style={styles.totalValue}>₹16672.00</Text>
+            </View>
+            <Text style={styles.paymentOption}>☑ Cash / PhonePe</Text>
+
+            <TouchableOpacity style={styles.proceedBtn}>
+              <Text style={styles.proceedText}>Proceed</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* REQUESTS */}
-        <View key="3" style={styles.page}>
-          <View style={styles.requestcard}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                paddingHorizontal: width * 0.04,
-                marginTop: height * 0.01,
-              }}
-            >
-              <Image
-                source={require("../../assets/Profileboy.jpg")}
-                style={styles.profileImg}
-              />
-              <View style={styles.cardDetails}>
-                <View style={styles.cardRow}>
-                  <MaterialIcons name="calendar-today" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>
-                    Aug 20th 2025 - 02:00 PM
-                  </Text>
-                </View>
-                <View style={styles.cardRow}>
-                  <MaterialIcons name="location-on" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>Lakshmi Nagar , RJY</Text>
-                </View>
-                <View style={styles.cardRow}>
-                  <Feather name="tool" size={RFValue(14)} color="#222" />
-                  <Text style={styles.cardDetailText}>
-                    Refrigerator - Cooling Issue
-                  </Text>
-                </View>
-              </View>
-            </View>
+        {/* COMPLETED */}
+        <View key="2" style={styles.page}>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ width: "95%", paddingHorizontal: width * 0.025 }}>
+            {completedOrders.map((order) => (
+              <View key={order.id} style={styles.orderCard}>
+                {order.expanded ? (
+                  <>
+                    <View style={{ flexDirection: "row" , gap:20 , justifyContent:"space-between"}}>
+                      <View style={{ flexDirection: "column" , width:"58%" }}>
+                      {order.products.map((p, idx) => (
 
-            <View style={styles.requestBtns}>
-              <TouchableOpacity style={styles.rejectBtn}>
-                <Text style={styles.btnText}>REJECT</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.acceptBtn}>
-                <Text style={styles.btnText}>ACCEPT</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+                        <View key={idx} style={styles.expandedRow}>
+                          <Image source={p.image} style={styles.expandedImg} />
+                          <View style={{ flex: 1, marginRight: 10 }}>
+                            <Text style={styles.expandedText}>
+                              {p.name}
+                            </Text>
+                            <Text style={styles.expandedText}>
+                              X{p.qty}
+                            </Text>
+                          </View>
+                          <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
+                        </View>
+                      ))}
+                      </View>
+                      <View style={styles.orderFooter}>
+                        <Text style={styles.dateText}>
+                          Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.viewBtn}
+                          onPress={() => toggleExpand(order.id)}
+                        >
+                          <Text style={styles.viewText}>View List ▲</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <View style={styles.orderRow}>
+                    <Image
+                      source={order.products[0].image}
+                      style={styles.orderImg}
+                    />
+                    <Text style={styles.dateText}>
+                      Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.viewBtn}
+                      onPress={() => toggleExpand(order.id)}
+                    >
+                      <Text style={styles.viewText}>View List ▼</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
+          </ScrollView>
         </View>
       </PagerView>
     </View>
@@ -218,130 +306,202 @@ const HistoryPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: height * 0.05,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  container: { flex: 1, backgroundColor: "#fff", paddingTop: height * 0.02 },
   headerRow: {
     flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
     justifyContent: "space-between",
     paddingHorizontal: width * 0.05,
-    marginBottom: height * 0.01,
+    paddingBottom: width * 0.04,
   },
-  headerText: { fontSize: RFValue(18), color: "#222", fontWeight: "400" },
-  headerBold: { fontWeight: "600", fontSize: RFValue(20), color: "#222" },
+  headerText: { fontSize: RFValue(16), color: "#000" },
+  headerBold: { fontWeight: "bold", fontSize: RFValue(18) },
 
   tabsRow: {
     flexDirection: "row",
-    width: "90%",
     justifyContent: "space-around",
-    alignItems: "center",
-    marginBottom: height * 0.01,
-    marginTop: height * 0.01,
-    borderBottomColor: "#D7D7D7",
     borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
-  tabText: {
-    fontSize: RFValue(13),
-    color: "#B0B0B0",
-    fontWeight: "bold",
-    paddingBottom: height * 0.005,
-  },
-  tabActiveText: { color: "#222" },
+  tabText: { fontSize: RFValue(13), color: "#aaa", fontWeight: "bold" },
+  tabActiveText: { color: "#000" },
   tabUnderline: {
-    width: width * 0.15,
-    height: 3,
-    backgroundColor: "#222",
-    borderRadius: 2,
-    marginTop: height * 0.003,
-  },
-  tabActiveContainer: { alignItems: "center" },
-
-  statusText: {
-    fontSize: RFValue(11),
-    color: "red",
-    fontWeight: "500",
+    width: width * 0.2,
+    height: 2,
+    backgroundColor: "#000",
     marginTop: 4,
-    textAlign: "center",
   },
+  tabContainer: { alignItems: "center" },
 
-  card: {
+  page: { flex: 1, alignItems: "center", paddingTop: 10 },
+
+  productRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#D7D7D7",
-    borderRadius: 15,
-    padding: width * 0.03,
-    marginVertical: height * 0.01,
-    width: "90%",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    width: width * 0.95,
+    alignSelf: "center",
   },
-  requestcard: {
-    flexDirection: "column",
+
+  productImg: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    marginRight: 18,
+  },
+
+  productName: {
+    fontSize: RFValue(13),
+    fontWeight: "600",
+    color: "#000",
+  },
+
+  productSubtitle: {
+    fontSize: RFValue(10),
+    color: "grey",
+    marginTop: 2,
+  },
+
+  productPrice: {
+    fontSize: RFValue(12),
+    color: "#444",
+    marginTop: 2,
+    fontWeight: "600",
+
+  },
+
+  qtyBox: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#D7D7D7",
-    borderRadius: 15,
-    padding: width * 0.03,
-    marginVertical: height * 0.01,
-    width: "90%",
-    gap: 15,
+    marginRight: 20,
   },
-  profileImg: {
-    width: width * 0.12,
-    height: width * 0.12,
-    borderRadius: (width * 0.12) / 2,
-    marginRight: width * 0.03,
+
+  circleBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "black",
-  },
-  cardDetails: { flex: 1,paddingHorizontal:5 },
-  cardRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
-  cardDetailText: { marginLeft: 6, fontSize: RFValue(10), color: "#222" },
-
-  earningBox: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    paddingVertical: height * 0.007,
-    paddingHorizontal: width * 0.04,
-    alignItems: "center",
+    borderColor: "#000",
     justifyContent: "center",
-  },
-  ProgressBox: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    paddingVertical: height * 0.007,
-    paddingHorizontal: width * 0.04,
     alignItems: "center",
-    justifyContent: "center",
-    width: "28%",
-    flexDirection: "column",
   },
-  earningLabel: { fontSize: RFValue(11), color: "#666", fontWeight: "500" },
-  earningValue: { fontSize: RFValue(14), color: "green", fontWeight: "bold" },
-  tipText: { fontSize: RFValue(10), color: "#444" },
 
-  requestBtns: { flexDirection: "row", alignItems: "center", gap: 18 },
-  rejectBtn: {
-    backgroundColor: "#F44336",
-    paddingVertical: height * 0.007,
-    paddingHorizontal: width * 0.04,
+  circleBtn1: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black"
+  },
+
+
+  circleBtnText: {
+    fontSize: RFValue(12),
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  circleBtnText1: {
+    fontSize: RFValue(12),
+    // fontWeight: "bold",
+    color: "white",
+  },
+  qtyText: {
+    marginHorizontal: 8,
+    fontSize: RFValue(12),
+    fontWeight: "600",
+    color: "#000",
+  },
+
+  summaryBox: { padding: 15, width: "90%" },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 3,
+    borderBottomColor: "black",
+    borderStyle: "dashed",
+    borderBottomWidth: 2,
+    paddingVertical: 15,
+  },
+  summaryLabel: { fontSize: RFValue(13), color: "#444", fontWeight: "600" },
+  summaryValue: { fontSize: RFValue(13), fontWeight: "600" },
+  totalLabel: { fontSize: RFValue(13), fontWeight: "600" },
+  totalValue: { fontSize: RFValue(13), fontWeight: "600" },
+
+  paymentOption: { marginVertical: 20, fontSize: RFValue(13), color: "#000", fontWeight: "600" },
+  proceedBtn: {
+    backgroundColor: "#000",
+    padding: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    width: "80%",
+    alignSelf: "center",
+  },
+  proceedText: { color: "#fff", fontWeight: "bold", fontSize: RFValue(13) },
+
+  orderCard: {
+    backgroundColor: "#D9D9D9",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginVertical: 8,
+    padding: 10,
+    width: "100%",
+    alignSelf: "center",
+
+  },
+  orderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    // backgroundColor: "red",
+  },
+  orderImg: { width: 55, height: 55, borderRadius: 8 },
+  dateText: { fontSize: RFValue(11), color: "#222", flexShrink: 1, fontWeight: "600" },
+
+  viewBtn: {
+    backgroundColor: "#000",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 6,
   },
-  acceptBtn: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: height * 0.007,
-    paddingHorizontal: width * 0.04,
-    borderRadius: 6,
-  },
-  btnText: { color: "#fff", fontWeight: "bold", fontSize: RFValue(11) },
+  viewText: { color: "#fff", fontSize: RFValue(11) },
 
-  page: {
-    flex: 1,
+  expandedRow: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingTop: height * 0.01,
+    marginBottom: 6,
+  },
+  expandedImg: { width: 40, height: 40, borderRadius: 8, marginRight: 10 },
+  expandedText: { flex: 1, fontSize: RFValue(11), color: "#333" },
+  expandedPrice: { fontSize: RFValue(11), fontWeight: "600" },
+
+  orderFooter: {
+    // flexDirection: "coloumn",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    marginTop: 8,
+    gap:20,
+    // alignContent:"flex-end",
+    // backgroundColor:"blue"
+  },
+
+  // Custom Scrollbar
+  scrollbarTrack: {
+    width: 6,
+    borderRadius: 3,
+    backgroundColor: "#f0f0f0",
+    // marginRight: 6,
+  },
+  scrollbarThumb: {
+    width: 6,
+    borderRadius: 3,
+    backgroundColor: "#000",
   },
 });
 

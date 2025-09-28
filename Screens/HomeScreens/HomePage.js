@@ -1,366 +1,421 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useRoute } from "@react-navigation/native";
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Dimensions,
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRoute, useNavigation } from "@react-navigation/native";
+
+const { width, height } = Dimensions.get("window"); // Get device dimensions
 
 const reviews = [
-    {
-        name: 'Naveen Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman1.jpg'),
-    },
-    {
-        name: 'Mohan Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman2.jpg'),
-    },
-    {
-        name: 'Naveen Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman1.jpg'),
-    },
-    {
-        name: 'Mohan Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman2.jpg'),
-    },
-    {
-        name: 'Naveen Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman1.jpg'),
-    },
-    {
-        name: 'Mohan Sesetti',
-        custId: '466453',
-        service: 'Pipe Leakage',
-        date: '18/08/2025',
-        avatar: require('../../assets/Homeman2.jpg'),
-    },
+  {
+    name: "Naveen Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman1.jpg"),
+  },
+  {
+    name: "Mohan Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman2.jpg"),
+  },
+  {
+    name: "Naveen Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman1.jpg"),
+  },
+  {
+    name: "Mohan Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman2.jpg"),
+  },
+  {
+    name: "Naveen Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman1.jpg"),
+  },
+  {
+    name: "Mohan Sesetti",
+    custId: "466453",
+    service: "Pipe Leakage",
+    date: "18/08/2025",
+    avatar: require("../../assets/Homeman2.jpg"),
+  },
+  // ... rest of reviews
 ];
 
 const HomePage = () => {
-     const route = useRoute();
+  const route = useRoute();
+  const navigation = useNavigation();
   const { loginData } = route.params;
-    return (
-        <ScrollView>
-            <View style={styles.container}>
-                {/* Header */}
-                <View style={styles.headerRow}>
-                    <Text style={styles.headerText}>
-                        Welcome, <Text style={styles.headerBold}>{loginData.data.name || "User"}!</Text>
-                    </Text>
-                    <MaterialIcons name="notifications-none" size={24} color="#222" />
-                </View>
-                {/* Lifetime Earnings */}
-                <View style={styles.lifetimeRow}>
-                    <Text style={styles.lifetimeAmount}>₹ 35,235.89</Text>
-                    <Text style={styles.lifetimeLabel}>Lifetime</Text>
-                </View>
-                {/* Chart */}
-                <View style={styles.chartBox}>
-                    {/* Replace with chart library if needed */}
-                    <View style={styles.chartPlaceholder}>
-                        <Text style={styles.chartText}>[Chart]</Text>
-                    </View>
-                </View>
-                {/* Stats Row */}
-                <View style={styles.statsRow}>
-                    <View style={styles.targetBox}>
-                        <Text style={styles.serviceboxheader}>Service Target</Text>
-                        <View style={styles.circleOuter}>
-                            <View style={styles.circleInner}>
-                                <Text style={styles.targetPercent}>60%</Text>
-                            </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
 
-                            <View style={{ width: '45%' }}>
-                                <Text style={styles.targetSub}>Target : 100</Text>
-                                <Text style={styles.targetDesc}>You have to complete 40 services to reach the target</Text>
-                            </View>
-                            <View style={{ width: '45%' }}>
-                                <Text style={styles.targetSub}>Score : 60</Text>
-                                <Text style={styles.targetDesc}>You have to complete 40 services to reach the target</Text>
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 0 }}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerRow}>
+          <Text style={styles.headerText}>
+            Welcome,{" "}
+            <Text style={styles.headerBold}>
+              {loginData.data.name || "User"}!
+            </Text>
+          </Text>
+          <MaterialIcons
+            name="notifications-none"
+            size={24}
+            color="#222"
+            onPress={() => navigation.navigate("Notifications")}
+          />
+        </View>
 
-                            </View>
-                        </View>
-                    </View>
+        {/* Lifetime Earnings */}
+        <View style={styles.lifetimeRow}>
+          <Text style={styles.lifetimeAmount}>₹ 35,235.89</Text>
+          <Text style={styles.lifetimeLabel}>Lifetime</Text>
+        </View>
 
-                    <View style={styles.statsCol}>
-                        <View style={styles.statsCard}>
-                            <Text style={styles.statsTitle}>Total Earnings</Text>
-                            <Text style={styles.statsAmount}>₹ 17,235.89</Text>
-                            <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, paddingBottom: 4 }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><Text style={styles.statsChange}> +67%</Text><Text style={{ color: 'white', fontSize: 6 }}>Than last month</Text></View>
-                            </View>
-                        </View>
-                        <View style={styles.statsCard}>
-                            <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, paddingBottom: 4 }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' , justifyContent:'space-between'}}>
-                                    <View>
-                            <Text style={styles.statsTitle}>Total Works</Text>
-                                        <Text style={styles.statsAmount}>102 <Text style={{ color: 'white', fontSize: 8 }}>Till today</Text></Text>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><Text style={styles.statsChange}> +67%</Text><Text style={{ color: 'white', fontSize: 6 }}>Than last month</Text></View>
-                                    </View>
-                                    <View style={{ alignItems: "center", justifyContent: 'center' }}>
-                                        <Text style={styles.statsSub}>Last Month</Text>
-                                        <Text style={{ color: 'white', fontSize: 20 }} >186</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-                {/* Reviews */}
-                <Text style={styles.reviewsTitle}>Reviews</Text>
-                <View style={styles.reviewsBox}>
-                    {reviews.map((r, idx) => (
-                        <View key={idx} style={styles.reviewItem}>
-                            <Image source={r.avatar} style={styles.reviewAvatar} />
-                            <View style={styles.reviewInfo}>
-                                <Text style={styles.reviewName}>{r.name}</Text>
-                                <Text style={styles.reviewCustId}>CustID : {r.custId}</Text>
-                            </View>
-                            <View style={styles.reviewService}>
-                                <Text style={styles.reviewServiceText}>{r.service}</Text>
-                                <Text style={styles.reviewDate}>{r.date}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
+        {/* Chart */}
+        <View style={styles.chartBox}>
+          <View style={styles.chartPlaceholder}>
+            <Text style={styles.chartText}>[Chart]</Text>
+          </View>
+        </View>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.targetBox}>
+            <Text style={styles.serviceboxheader}>Service Target</Text>
+            <View style={styles.circleOuter}>
+              <View style={styles.circleInner}>
+                <Text style={styles.targetPercent}>60%</Text>
+              </View>
             </View>
-        </ScrollView>
-    );
+            <View style={styles.targetDetails}>
+              <View style={styles.targetDetailBox}>
+                <Text style={styles.targetSub}>Target : 100</Text>
+                <Text style={styles.targetDesc}>
+                  You have to complete 40 services to reach the target
+                </Text>
+              </View>
+              <View style={styles.targetDetailBox}>
+                <Text style={styles.targetSub}>Score : 60</Text>
+                <Text style={styles.targetDesc}>
+                  You have to complete 40 services to reach the target
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.statsCol}>
+            <View style={styles.statsCard}>
+              <Text style={styles.statsTitle}>Total Due</Text>
+              <Text style={styles.statsAmount}>₹ 17,235.89</Text>
+              <View style={styles.statsDivider}>
+                <View style={styles.statsChangeRow}>
+                  <Text style={styles.statsChange}> +67%</Text>
+                  <Text style={styles.statsChangeDesc}>Than last month</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.statsCard}>
+              <View style={styles.statsDivider}>
+                <View style={styles.statsChangeRow}>
+                  <View>
+                    <Text style={styles.statsTitle}>Total Delivery</Text>
+                    <Text style={styles.statsAmount}>
+                      102 <Text style={styles.statsChangeDesc}>Till today</Text>
+                    </Text>
+                    <View style={styles.statsChangeRow}>
+                      <Text style={styles.statsChange}> +67%</Text>
+                      <Text style={styles.statsChangeDesc}>
+                        Than last month
+                      </Text>
+                    </View>
+                  </View>
+                  {/* <View style={styles.statsLastMonth}>
+                    <Text style={styles.statsSub}>Last Month</Text>
+                    <Text style={styles.statsLastMonthAmount}>186</Text>
+                  </View> */}
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Reviews */}
+        {/* <Text style={styles.reviewsTitle}>Reviews</Text>
+        <View style={styles.reviewsBox}>
+          {reviews.map((r, idx) => (
+            <View key={idx} style={styles.reviewItem}>
+              <Image source={r.avatar} style={styles.reviewAvatar} />
+              <View style={styles.reviewInfo}>
+                <Text style={styles.reviewName}>{r.name}</Text>
+                <Text style={styles.reviewCustId}>CustID : {r.custId}</Text>
+              </View>
+              <View style={styles.reviewService}>
+                <Text style={styles.reviewServiceText}>{r.service}</Text>
+                <Text style={styles.reviewDate}>{r.date}</Text>
+              </View>
+            </View>
+          ))}
+        </View> */}
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        paddingTop: '10%',
-        alignItems: 'center',
-    },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        justifyContent: 'space-between',
-        paddingHorizontal: 18,
-        borderBottomColor: 'grey',
-        borderBottomWidth: 1,
-        paddingBottom: 10,
-        width: '90%',
-        // marginBottom: 8,
-    },
-    headerText: {
-        fontSize: 20,
-        color: '#222',
-        fontWeight: '400',
-    },
-    headerBold: {
-        fontWeight: 'bold',
-        fontSize: 22,
-        color: '#222',
-    },
-    lifetimeRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        marginBottom: 8,
-        marginTop: 8,
-        width: '90%',
-        paddingTop: 10,
-    },
-    lifetimeAmount: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#222',
-        marginRight: 8,
-    },
-    lifetimeLabel: {
-        fontSize: 13,
-        color: '#888',
-        marginBottom: 4,
-    },
-    chartBox: {
-        backgroundColor: '#222',
-        borderRadius: 18,
-        width: '90%',
-        height: 200,
-        marginBottom: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    chartPlaceholder: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    chartText: {
-        color: '#fff',
-        fontSize: 18,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        width: '90%',
-        justifyContent: 'space-between',
-        marginBottom: 12,
-    },
-    targetBox: {
-        backgroundColor: '#222',
-        borderRadius: 18,
-        padding: 12,
-        width: '48%',
-        alignItems: 'center',
-    },
-    circleOuter: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
-        backgroundColor: '#F2FF00',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    circleInner: {
-        width: 56,
-        height: 56,
-        borderRadius: 258,
-        backgroundColor: '#000',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    targetPercent: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
-    targetLabel: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 15,
-        marginBottom: 2,
-    },
-    targetSub: {
-        color: '#fff',
-        fontSize: 12,
-        marginBottom: 2,
+  container: {
+    flex: 1,
+    backgroundColor: "transparent",
+    paddingTop: height * 0.04,
+    alignItems: "center",
+    paddingHorizontal:7,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "90%",
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "grey",
+  },
+  headerText: {
+    fontSize: width * 0.05,
+    color: "#222",
+  },
+  headerBold: {
+    fontWeight: "bold",
+    fontSize: width * 0.06,
+    color: "#222",
+  },
+  lifetimeRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginBottom: height * 0.01,
+    marginTop: height * 0.01,
+    width: "90%",
+  },
+  lifetimeAmount: {
+    fontSize: width * 0.07,
+    fontWeight: "bold",
+    color: "#222",
+    marginRight: 8,
+  },
+  lifetimeLabel: {
+    fontSize: width * 0.035,
+    color: "#888",
+    marginBottom: 4,
+  },
+  chartBox: {
+    backgroundColor: "#222",
+    borderRadius: 18,
+    width: "90%",
+    height: height * 0.25,
+    marginBottom: height * 0.015,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chartPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chartText: {
+    color: "#fff",
+    fontSize: width * 0.045,
+  },
+  statsRow: {
+    flexDirection: "row",
+    width: "90%",
+    justifyContent: "space-between",
+    marginBottom: height * 0.015,
+  },
+  targetBox: {
+    backgroundColor: "black",
+    borderRadius: 18,
+    padding: 12,
+    width: "48%",
+    alignItems: "center",
+  },
+  circleOuter: {
+    width: width * 0.17,
+    height: width * 0.17,
+    borderRadius: (width * 0.17) / 2,
+    backgroundColor: "#F2FF00",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  circleInner: {
+    width: width * 0.16,
+    height: width * 0.16,
+    borderRadius: (width * 0.16) / 2,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  targetPercent: {
+    fontSize: width * 0.045,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  serviceboxheader: {
+    color: "#fff",
+    fontSize: width * 0.042,
+    width: "100%",
+    textAlign: "left",
+    fontWeight: "600",
+  },
+  targetDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  targetDetailBox: {
+    width: "48%",
+  },
+  targetSub: {
+    color: "#fff",
+    fontSize: width * 0.03,
+    marginBottom: 2,
+    fontWeight:500,
 
-    },
-    serviceboxheader: {
-        color: '#fff',
-        fontSize: 18,
-        width: '100%',
-        textAlign: 'left',
-        fontWeight: 400,
-    },
-    targetDesc: {
-        color: '#fff',
-        fontSize: 7,
-        marginTop: 2,
-        width: '80%',
-        // textAlign: 'center',
-    },
-    statsCol: {
-        width: '50%',
-        justifyContent: 'space-between',
-    },
-    statsCard: {
-        backgroundColor: '#111',
-        borderRadius: 14,
-        marginBottom: 8,
-        paddingHorizontal: 18,
-        paddingVertical: 20,
-
-    },
-    statsTitle: {
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: 'bold',
-        marginBottom: 2,
-    },
-    statsAmount: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 2,
-    },
-    statsSub: {
-        color: '#fff',
-        fontSize: 11,
-        fontWeight: 400, 
-    },
-    statsChange: {
-        color: '#22c55e',
-        fontSize: 12,
-        marginBottom: 2,
-    },
-    reviewsTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#222',
-        alignSelf: 'flex-start',
-        marginLeft: 18,
-        marginTop: 8,
-        // marginBottom: 6,
-    },
-    reviewsBox: {
-        width: '90%',
-        backgroundColor: '#FFF',
-        borderRadius: 18,
-        padding: 8,
-    },
-    reviewItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#D7D7D7',
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        marginBottom: 8,
-    },
-    reviewAvatar: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
-        marginRight: 10,
-        backgroundColor: '#ccc',
-    },
-    reviewInfo: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    reviewName: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#222',
-    },
-    reviewCustId: {
-        fontSize: 12,
-        // color: '#888',
-    },
-    reviewService: {
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-    },
-    reviewServiceText: {
-        fontSize: 13,
-        color: '#222',
-        fontWeight: 'bold',
-    },
-    reviewDate: {
-        fontSize: 12,
-        // color: '#888',
-    },
+  },
+  targetDesc: {
+    color: "#fff",
+    fontSize: width * 0.02,
+    marginTop: 2,
+    fontWeight:500,
+  },
+  statsCol: {
+    width: "48%",
+    justifyContent: "space-between",
+  },
+  statsCard: {
+    backgroundColor: "#111",
+    borderRadius: 14,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    // paddingRight:50
+  },
+  statsTitle: {
+    color: "#fff",
+    fontSize: width * 0.035,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  statsAmount: {
+    color: "#fff",
+    fontSize: width * 0.05,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  statsSub: {
+    color: "#fff",
+    fontSize: width * 0.03,
+    fontWeight: "400",
+  },
+  statsChange: {
+    color: "#22c55e",
+    fontSize: width * 0.03,
+    marginBottom: 2,
+  },
+  statsChangeDesc: {
+    color: "white",
+    fontSize: width * 0.02,
+  },
+  statsDivider: {
+    borderBottomColor: "white",
+    borderBottomWidth: 1,
+    paddingBottom: 4,
+  },
+  statsChangeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  statsLastMonth: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statsLastMonthAmount: {
+    color: "white",
+    fontSize: width * 0.05,
+  },
+  reviewsTitle: {
+    fontSize: width * 0.075,
+    fontWeight: "bold",
+    color: "#222",
+    alignSelf: "flex-start",
+    marginLeft: "5%",
+    marginTop: height * 0.01,
+  },
+  reviewsBox: {
+    width: "90%",
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 8,
+    // gap:5,
+  },
+  reviewItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#D7D7D7",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    marginBottom: 8,
+  },
+  reviewAvatar: {
+    width: width * 0.1,
+    height: width * 0.1,
+    borderRadius: (width * 0.1) / 2,
+    marginRight: 10,
+    backgroundColor: "#ccc",
+  },
+  reviewInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  reviewName: {
+    fontSize: width * 0.035,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  reviewCustId: {
+    fontSize: width * 0.03,
+  },
+  reviewService: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+  reviewServiceText: {
+    fontSize: width * 0.035,
+    color: "#222",
+    fontWeight: "bold",
+  },
+  reviewDate: {
+    fontSize: width * 0.03,
+  },
 });
 
 export default HomePage;

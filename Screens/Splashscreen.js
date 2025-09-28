@@ -15,15 +15,12 @@ const Splashscreen = () => {
                 </View>
                 <Image source={Splash} style={styles.worker} />
                 <View style={styles.content}>
-                    <Text style={styles.title}>Grow Your Work With Us</Text>
+                    <Text style={styles.title}>Grow Your Franchise With Us</Text>
 
                     <View style={styles.descriptionContainer}>
                         <Text style={styles.description}>
-                            Get trusted job requests, connect with customers, and grow your earnings -
-                            all in one place.
-                        </Text>
-                        <Text style={styles.description}>
-                            Start building your career with every task you complete.
+                            {/* Start building your career with every task you complete. */}
+                            Fuel your franchise growth by connecting with customers, managing operations, and boosting your food business—all in one powerful, easy-to-use platform.
                         </Text>
                     </View>
 
@@ -68,9 +65,9 @@ const styles = StyleSheet.create({
         letterSpacing: 2,
     },
     worker: {
-        width: '80%',
+        width: '120%',
         position: 'absolute',
-        top: '8%',
+        top: '7%',
         resizeMode: 'contain',
     },
     content: {
@@ -92,12 +89,13 @@ const styles = StyleSheet.create({
     },
     descriptionContainer: {
         marginBottom: height * 0.03,
+        padding:width*0.02,
     },
     description: {
         fontSize: width * 0.04,
         textAlign: 'center',
         color: '#555',
-        marginBottom: 5,
+        // marginBottom: 5,
     },
     button: {
         backgroundColor: '#2859C5',

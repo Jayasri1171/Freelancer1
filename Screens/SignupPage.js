@@ -11,6 +11,7 @@ import {
     Keyboard,
     Dimensions,
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -20,86 +21,14 @@ import TechnicianImg from '../assets/technician.png';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size) => (width / 375) * size;
 const verticalScale = (size) => (height / 812) * size;
 const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
 
-// Sample location data (you can replace with your actual data)
-const states = [
-    "Andhra Pradesh"];
 
-const districtsByState = {
-    "Andhra Pradesh": [
-        // "Alluri Sitharama Raju",
-        // "Anakapalli",
-        // "Anantapur",
-        // "Annamayya",
-        // "Bapatla",
-        // "Chittoor",
-        "East Godavari",
-        // "Eluru",
-        // "Guntur",
-        // "Kakinada",
-        // "Konaseema",
-        // "Krishna",
-        // "Kurnool",
-        // "Nandyal",
-        // "NTR",
-        // "Palnadu",
-        // "Parvathipuram Manyam",
-        // "Prakasam",
-        // "Sri Potti Sriramulu Nellore",
-        // "Sri Sathya Sai",
-        // "Srikakulam",
-        // "Tirupati",
-        // "Visakhapatnam",
-        // "Vizianagaram",
-        // "West Godavari",
-        // "YSR Kadapa"
-    ]
-};
-
-const citiesByDistrict = {
-    "East Godavari": [
-        "Rajahmundry",
-        //   "Kakinada",
-        //   "Amalapuram",
-        //   "Ravulapalem",
-        //   "Mandapeta",
-        //   "Ramachandrapuram",
-        //   "Peddapuram",
-        //   "Pithapuram",
-        //   "Samalkot",
-        //   "Tuni"
-    ]
-
-    // Add more districts and cities as needed
-};
-
-const areasByCity = {
-    "Rajahmundry": [
-        "Aryapuram",
-        "Dowlathmotha",
-        "Danavaipeta",
-        "Gandhipuram",
-        "Tilak Road",
-        "Katheru",
-        "Morampudi",
-        "Gokavaram Bus Stand",
-        "Innespeta",
-        "Syamala Nagar"
-    ]
-};
-
-const services = [
-    "Plumber",
-    "Cleaner",
-    "Electrician",
-    "Technician"
-];
 
 const SignupPage = () => {
+    const route = useRoute();
     const [checked, setChecked] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [availableDistricts, setAvailableDistricts] = useState([]);
@@ -109,15 +38,10 @@ const SignupPage = () => {
         name: '',
         phone: '',
         email: '',
-        service: '',
-        state: '',
-        district: '',
         city: '',
-        areas: [],
-        experience: '',
+        location: '',
         aadhar: null,
         pan: null,
-        certificate: null,
         bank: null,
     });
 
@@ -141,6 +65,11 @@ const SignupPage = () => {
         };
     }, []);
 
+     useEffect(() => {
+    if (route.params?.agreed) {
+      setChecked(true);
+    }
+  }, [route.params?.agreed]);
     // Update available districts when state changes
     useEffect(() => {
         if (form.state && districtsByState[form.state]) {
@@ -167,15 +96,7 @@ const SignupPage = () => {
     }, [form.district]);
 
     // Update available areas when city changes
-    useEffect(() => {
-        if (form.city && areasByCity[form.city]) {
-            setAvailableAreas(areasByCity[form.city]);
-            // Reset areas when city changes
-            setForm(prev => ({ ...prev, areas: [] }));
-        } else {
-            setAvailableAreas([]);
-        }
-    }, [form.city]);
+    
 
     const handleInput = (key, value) => {
         setForm({ ...form, [key]: value });
@@ -238,16 +159,6 @@ const SignupPage = () => {
             return;
         }
 
-        // Validate location selection
-        if (!form.state || !form.district || !form.city || form.areas.length === 0) {
-            alert("Please complete your location selection (State, District, City, and at least one area)");
-            return;
-        }
-
-        if (form.areas.length > 3) {
-            alert("Please select a maximum of 3 areas");
-            return;
-        }
 
         try {
             const formData = new FormData();
@@ -256,12 +167,9 @@ const SignupPage = () => {
             formData.append("name", form.name);
             formData.append("phone", form.phone);
             formData.append("email", form.email);
-            formData.append("service", form.service);
-            formData.append("state", form.state);
-            formData.append("district", form.district);
             formData.append("city", form.city);
-            formData.append("areas", JSON.stringify(form.areas));
-            formData.append("experience", form.experience);
+            formData.append("location", form.location);
+
 
             // Documents
             ["aadhar", "pan", "certificate", "bank"].forEach((key) => {
@@ -273,9 +181,9 @@ const SignupPage = () => {
                     });
                 }
             });
-
+            console.log(formData)
             const response = await fetch(
-                "https://cube-backend-service.onrender.com/api/technician/register",
+                "https://cube-backend-service.onrender.com/api/franchise/register",
                 {
                     method: "POST",
                     body: formData,
@@ -298,7 +206,7 @@ const SignupPage = () => {
     return (
         <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={[styles.scrollContent, { paddingBottom: keyboardHeight > 0 ? verticalScale(20) : verticalScale(30) }]}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: keyboardHeight > 0 ? verticalScale(20) : verticalScale(0) }]}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
@@ -307,7 +215,7 @@ const SignupPage = () => {
                     <View style={styles.topSection}>
                         <Image source={TechnicianImg} style={styles.techImage} />
                         <Text style={styles.quote}>
-                            "Join as a Technician and Grow Your Work"
+                            “Grow your business with our franchise.”
                         </Text>
                     </View>
                 )}
@@ -345,108 +253,21 @@ const SignupPage = () => {
                         onChangeText={text => handleInput('email', text)}
                     />
 
-                    <Text style={styles.inputLabel}>Service you provide</Text>
-                    <View style={styles.pickerBox}>
-                        <Picker
-                            selectedValue={form.service}
-                            style={styles.picker}
-                            onValueChange={value => handleInput('service', value)}
-                        >
-                            <Picker.Item label="Select Service" value="" />
-                            {services.map(s => (
-                                <Picker.Item key={s} label={s} value={s} />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    {/* State Selection */}
-                    <Text style={styles.inputLabel}>State *</Text>
-                    <View style={styles.pickerBox}>
-                        <Picker
-                            selectedValue={form.state}
-                            style={styles.picker}
-                            onValueChange={value => handleInput('state', value)}
-                        >
-                            <Picker.Item label="Select State" value="" />
-                            {states.map(state => (
-                                <Picker.Item key={state} label={state} value={state} />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    {/* District Selection (only shown if state is selected) */}
-                    {form.state && (
-                        <>
-                            <Text style={styles.inputLabel}>District *</Text>
-                            <View style={styles.pickerBox}>
-                                <Picker
-                                    selectedValue={form.district}
-                                    style={styles.picker}
-                                    onValueChange={value => handleInput('district', value)}
-                                >
-                                    <Picker.Item label="Select District" value="" />
-                                    {availableDistricts.map(district => (
-                                        <Picker.Item key={district} label={district} value={district} />
-                                    ))}
-                                </Picker>
-                            </View>
-                        </>
-                    )}
-
-                    {/* City Selection (only shown if district is selected) */}
-                    {form.district && (
-                        <>
-                            <Text style={styles.inputLabel}>City *</Text>
-                            <View style={styles.pickerBox}>
-                                <Picker
-                                    selectedValue={form.city}
-                                    style={styles.picker}
-                                    onValueChange={value => handleInput('city', value)}
-                                >
-                                    <Picker.Item label="Select City" value="" />
-                                    {availableCities.map(city => (
-                                        <Picker.Item key={city} label={city} value={city} />
-                                    ))}
-                                </Picker>
-                            </View>
-                        </>
-                    )}
-
-                    {/* Area Selection (only shown if city is selected) */}
-                    {form.city && (
-                        <>
-                            <Text style={styles.sectionLabel}>
-                                Select Areas (Max 3) - {form.areas.length}/3 selected
-                            </Text>
-                            <View style={styles.areasBox}>
-                                {availableAreas.map(area => (
-                                    <TouchableOpacity
-                                        key={area}
-                                        style={[
-                                            styles.areaItem,
-                                            form.areas.includes(area) && styles.areaItemSelected
-                                        ]}
-                                        onPress={() => handleAreaSelect(area)}
-                                    >
-                                        <Text style={[
-                                            styles.areaText,
-                                            form.areas.includes(area) && styles.areaTextSelected
-                                        ]}>
-                                            {area}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </>
-                    )}
-
-                    <Text style={styles.inputLabel}>Experience *</Text>
+                    <Text style={styles.inputLabel}>Enter Your City </Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="10+ years"
+                        placeholder="Select Your City"
                         placeholderTextColor={"#888"}
                         value={form.experience}
-                        onChangeText={text => handleInput('experience', text)}
+                        onChangeText={text => handleInput('city', text)}
+                    />
+                    <Text style={styles.inputLabel}>Enter Your Location </Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Select Your Location"
+                        placeholderTextColor={"#888"}
+                        value={form.experience}
+                        onChangeText={text => handleInput('location', text)}
                     />
 
                     <Text style={styles.sectionLabel}>Required Documents *</Text>
@@ -479,24 +300,6 @@ const SignupPage = () => {
                                 <View>
                                     <Text style={styles.uploadBtnText}>
                                         {form.pan ? form.pan.name || 'File Selected' : 'Upload your files here'}
-                                    </Text>
-                                    <Text style={styles.uploadBtnSubText}>Max 10 Mb*</Text>
-                                </View>
-                                <Feather name="upload" size={moderateScale(22)} style={styles.uploadIcon} />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.uploadBox}>
-                        <Text style={styles.uploadLabel}>Life Insurance Certificate</Text>
-                        <TouchableOpacity
-                            style={styles.uploadBtn}
-                            onPress={() => handleDocumentPick('certificate')}
-                        >
-                            <View style={styles.uploadBtnContent}>
-                                <View>
-                                    <Text style={styles.uploadBtnText}>
-                                        {form.certificate ? form.certificate.name || 'File Selected' : 'Upload your files here'}
                                     </Text>
                                     <Text style={styles.uploadBtnSubText}>Max 10 Mb*</Text>
                                 </View>
@@ -542,7 +345,7 @@ const SignupPage = () => {
                     </View>
 
                     <TouchableOpacity style={styles.applyBtn} onPress={handleSubmit}>
-                        <Text style={styles.applyBtnText}>Apply</Text>
+                        <Text style={styles.applyBtnText}>Join as a Franchise</Text>
                     </TouchableOpacity>
 
                     <Text style={styles.accountText}>
@@ -567,30 +370,40 @@ const styles = StyleSheet.create({
     },
     topSection: {
         alignItems: 'center',
-        marginTop: verticalScale(18),
+        // marginTop: verticalScale(18),
         position:"relative"
     },
+    // techImage: {
+    //     width: width * 0.9,
+    //     height: verticalScale(421),
+    //     resizeMode: 'contain',
+    //     backgroundColor:"red",
+
+    // },
     techImage: {
-        width: width * 0.75,
-        height: verticalScale(421),
-        resizeMode: 'contain',
-    },
+  width: "100%",               // take full width of container
+  aspectRatio: 1.5,            // adjust this ratio to match your image (try 1.5–2)
+  resizeMode: "contain",
+  transform: [{ translateX: -50 }],
+  top:"6%"
+//   alignSelf: "right",
+},
     quote: {
         // width:moderateScale(22),
-        fontSize: moderateScale(15),
+        fontSize: moderateScale(18),
         color: '#222',
         fontWeight: 'bold',
         textAlign: 'auto',
         position:"absolute",
-        top:"10%",
-        left:"50%",
-        maxWidth:"25%",
+        top:"17%",
+        left:"105%",
+        // maxWidth:"25%",
         height:"auto",
-        marginBottom: 8,
+        // marginBottom: 8,
         width: 136,
-        height: 112,
+        height: 92,
         position: 'absolute',
-       
+    //    backgroundColor:'red',
         textAlign: 'left'
     },
     formBox: {

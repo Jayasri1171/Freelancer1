@@ -2,14 +2,25 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileLogout = ({ navigation }) => {
   const route = useRoute();
   const { loginData } = route.params;
-  const handleLogout = () => {
-    // Add your logout logic here (e.g., clearing tokens, navigating to login)
-    console.log("Logged out!");
-    navigation.replace("Page1"); // Example: Navigate to Login Page
+  const handleLogout = async() => {
+    try {
+    // Clear cached login data
+    await AsyncStorage.removeItem('loginData');
+    await AsyncStorage.removeItem('userPhone');
+
+    console.log("Logged out and cache cleared!");
+
+    // Navigate back to login page
+    navigation.replace("Page1");
+  } catch (err) {
+    console.log('Error clearing cache:', err);
+    Alert.alert('Logout Failed', 'Could not clear cached data. Please try again.');
+  }
   };
 
   return (

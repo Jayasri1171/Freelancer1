@@ -5,7 +5,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 const Otpscreen = () => {
     const route = useRoute();
+    
     const { loginData } = route.params;
+
     navigator = useNavigation();
     const [checked, setChecked] = useState(false);
     const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
@@ -19,6 +21,14 @@ const Otpscreen = () => {
         }
         return () => clearTimeout(timerRef.current);
     }, [resendTimer]);
+
+
+
+     useEffect(() => {
+    if (route.params?.agreed) {
+      setChecked(true);
+    }
+  }, [route.params?.agreed]);
 
     const handleChange = (text, idx) => {
         if (/^\d?$/.test(text)) {
@@ -103,10 +113,10 @@ const Otpscreen = () => {
                         </TouchableOpacity>
                         <Text style={styles.agreeText}>
                             By continuing, you agree to our
-                            <Text style={styles.link}> T&amp;C and Privacy policy</Text>
+                            <Text style={styles.link} onPress={() => navigator.navigate('TermsPage')}> T&amp;C and Privacy policy</Text>
                         </Text>
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={() => navigator.navigate("Container", { loginData: loginData })}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigator.navigate("Container" , {loginData})}>
                         <Text style={styles.buttonText}>Verify</Text>
                     </TouchableOpacity>
                     <Text style={styles.accountText}>

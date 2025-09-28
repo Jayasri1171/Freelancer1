@@ -1,7 +1,10 @@
 import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput , ScrollView} from "react-native";
-import { MaterialIcons, Feather, Fontisto , FontAwesome} from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
+import { MaterialIcons, Feather, Fontisto, FontAwesome } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
+import { useServiceAccess } from "./ServiceAccesContext";
+
 
 const steps = [
     { id: 1, title: "Equipment Check" },
@@ -14,8 +17,11 @@ const ServicePage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [otp, setOtp] = useState(["", "", "", ""]);
     const inputs = useRef([]);
-     const route = useRoute();
-  const { loginData } = route.params;
+    const route = useRoute();
+    const navigation = useNavigation();
+    const { loginData } = route.params;
+    const { serviceUnlocked, setServiceUnlocked } = useServiceAccess();
+
 
     const handleOtpChange = (text, index) => {
         let newOtp = [...otp];
@@ -131,7 +137,10 @@ const ServicePage = () => {
                         </View>
                         <TouchableOpacity
                             style={styles.nextBtn}
-                            onPress={() => setCurrentStep(1)}
+                            onPress={() => {
+                                setCurrentStep(1);
+                                setServiceUnlocked(false); // lock service again
+                            }}
                         >
                             <Text style={styles.cardBtnText}>Done</Text>
                         </TouchableOpacity>
@@ -141,80 +150,97 @@ const ServicePage = () => {
                 return null;
         }
     };
-
-    return (
-        <ScrollView>
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.headerRow}>
-                <Text style={styles.headerText}>
-                    {loginData.data.name || "User"}'s <Text style={styles.headerBold}>Playground</Text>
-                </Text>
-                <MaterialIcons
-                    name="notifications-none"
-                    size={24}
-                    color="#222"
-                    style={styles.bellIcon}
-                />
-            </View>
-
-            {/* Progress Bar */}
-            <Text style={styles.progressTitle}>Service Progress</Text>
-            <View style={styles.progressBar}>
-                {steps.map((step, index) => (
-                    <View key={step.id} style={styles.progressStep}>
-                        <View
-                            style={
-                                step.id <= currentStep
-                                    ? styles.progressCircleActive
-                                    : styles.progressCircle
-                            }
-                        >
-                            {step.id <= currentStep && (
-                                <Feather name="check-circle" size={24} color="#15D30F" />
-                            )}
-                        </View>
-                        {index < steps.length - 1 && (
-                            <View
-                                style={
-                                    step.id < currentStep
-                                        ? styles.progressLine
-                                        : styles.progressLine
-                                }
-                            />
-                        )}
+    if (serviceUnlocked) {
+        return (
+            <ScrollView>
+                <View style={styles.container}>
+                    {/* Header */}
+                    <View style={styles.headerRow}>
+                        <Text style={styles.headerText}>
+                            {loginData.data.name || "User"}'s <Text style={styles.headerBold}>Playground</Text>
+                        </Text>
+                        <MaterialIcons name="notifications-none" size={24} color="#222" style={styles.bellIcon} onPress={() => navigation.navigate('Notifications')} />
                     </View>
-                ))}
-            </View>
 
-            {/* Labels */}
-            <View style={styles.progressLabelsRow}>
-                {steps.map((step) => (
-                    <Text
-                        key={step.id}
-                        style={
-                            step.id === currentStep
-                                ? styles.progressLabelActive
-                                : styles.progressLabelActive
-                        }
-                    >
-                        {step.id <= currentStep ? step.title : ""}
-                    </Text>
-                ))}
-            </View>
+                    {/* Progress Bar */}
+                    <Text style={styles.progressTitle}>Service Progress</Text>
+                    <View style={styles.progressBar}>
+                        {steps.map((step, index) => (
+                            <View key={step.id} style={styles.progressStep}>
+                                <View
+                                    style={
+                                        step.id <= currentStep
+                                            ? styles.progressCircleActive
+                                            : styles.progressCircle
+                                    }
+                                >
+                                    {step.id <= currentStep && (
+                                        <Feather name="check-circle" size={24} color="#15D30F" />
+                                    )}
+                                </View>
+                                {index < steps.length - 1 && (
+                                    <View
+                                        style={
+                                            step.id < currentStep
+                                                ? styles.progressLine
+                                                : styles.progressLine
+                                        }
+                                    />
+                                )}
+                            </View>
+                        ))}
+                    </View>
 
-            {/* Card */}
-            <Text style={styles.cardTitle}>{steps[currentStep - 1].title}</Text>
-            <View style={styles.card}>
-                <View style={styles.cardLocationRow}>
-                    <MaterialIcons name="location-on" size={18} color="#222" />
-                    <Text style={styles.cardLocation}>Lala Cheruvu, Rjy</Text>
+                    {/* Labels */}
+                    <View style={styles.progressLabelsRow}>
+                        {steps.map((step) => (
+                            <Text
+                                key={step.id}
+                                style={
+                                    step.id === currentStep
+                                        ? styles.progressLabelActive
+                                        : styles.progressLabelActive
+                                }
+                            >
+                                {step.id <= currentStep ? step.title : ""}
+                            </Text>
+                        ))}
+                    </View>
+
+                    {/* Card */}
+                    <Text style={styles.cardTitle}>{steps[currentStep - 1].title}</Text>
+                    <View style={styles.card}>
+                        <View style={styles.cardLocationRow}>
+                            <MaterialIcons name="location-on" size={18} color="#222" />
+                            <Text style={styles.cardLocation}>Lala Cheruvu, Rjy</Text>
+                        </View>
+                        {renderCardContent()}
+                    </View>
                 </View>
-                {renderCardContent()}
-            </View>
+            </ScrollView>
+        );
+    }
+  else {
+    return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: "red", textAlign: "center", marginBottom: 20 }}>
+                You must accept a notification before accessing this page.
+            </Text>
+            <TouchableOpacity
+                style={{
+                    backgroundColor: "#22c55e",
+                    paddingVertical: 12,
+                    paddingHorizontal: 25,
+                    borderRadius: 8
+                }}
+                onPress={() => navigation.navigate("Notifications")}
+            >
+                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>Go to Notifications</Text>
+            </TouchableOpacity>
         </View>
-        </ScrollView>
     );
+}
+
 };
 
 const styles = StyleSheet.create({

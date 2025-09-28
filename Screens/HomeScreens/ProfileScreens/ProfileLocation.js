@@ -40,27 +40,15 @@ const ProfileLocation = () => {
       </View>
 
       {/* Title */}
-      <Text style={styles.sectionTitle}>Locations</Text>
+      <Text style={styles.sectionTitle}> Your Location</Text>
 
       {/* Dropdown Placeholder */}
       <TouchableOpacity style={styles.dropdown}>
-        <Text style={styles.dropdownText}>Select two areas</Text>
+        <Text style={styles.dropdownText}>Narsapuram</Text>
         <MaterialIcons name="arrow-drop-down" size={22} color="#444" />
       </TouchableOpacity>
 
-      {/* Location List */}
-      <FlatList
-        data={locations}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.locationCard}>
-            <Text style={styles.locationName}>{item.name}</Text>
-            {item.active && (
-              <MaterialIcons name="check-circle" size={18} color="green" />
-            )}
-          </View>
-        )}
-      />
+      
     </View>
   );
 };

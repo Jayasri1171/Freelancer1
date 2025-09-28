@@ -12,37 +12,57 @@ import {
   Keyboard,
   Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Mobile from '../assets/Mobilehand.png';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
-const API_URL = 'https://cube-backend-service.onrender.com/api/technician/login';
+const API_URL = 'https://cube-backend-service.onrender.com/api/franchise/login';
 
 const Page1 = () => {
+  const route = useRoute();
+  const navigator = useNavigation();
+
   const [checked, setChecked] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const navigator = useNavigation();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-      }
+      (e) => setKeyboardHeight(e.endCoordinates.height)
     );
     const keyboardDidHideListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-      }
+      () => setKeyboardHeight(0)
     );
 
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.agreed) setChecked(true);
+  }, [route.params?.agreed]);
+
+  // Check cache on mount
+  useEffect(() => {
+    const checkCache = async () => {
+      try {
+        const cachedLoginData = await AsyncStorage.getItem('loginData');
+        if (cachedLoginData) {
+          console.log('Cached loginData found, redirecting to HomeContainer');
+          navigator.navigate("Container", { loginData: JSON.parse(cachedLoginData) });
+          // navigator.navigate('Otpscreen', { loginData: data });
+        }
+      } catch (err) {
+        console.log('Error reading cached loginData:', err);
+      }
+    };
+    checkCache();
   }, []);
 
   const isValidPhone = useMemo(() => /^\d{10,15}$/.test(phoneNumber), [phoneNumber]);
@@ -54,15 +74,16 @@ const Page1 = () => {
       return;
     }
     if (!isValidPhone) {
-      Alert.alert('Invalid number', 'Enter a valid phone number (10–15 digits).');
+      Alert.alert('Invalid number', 'Enter a valid phone number.');
       return;
     }
 
     setSubmitting(true);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -87,7 +108,14 @@ const Page1 = () => {
         Alert.alert('OTP sent', "Enter the OTP we've sent to your phone.");
       }
 
+      // Cache phone & loginData
+      await AsyncStorage.setItem('userPhone', phoneNumber);
+      await AsyncStorage.setItem('loginData', JSON.stringify(data));
+
+      // Navigate to OTP screen
       navigator.navigate('Otpscreen', { loginData: data });
+
+      clearTimeout(timeout);
     } catch (err) {
       const msg =
         err?.name === 'AbortError'
@@ -95,7 +123,6 @@ const Page1 = () => {
           : err?.message || 'Something went wrong. Please try again.';
       Alert.alert('Couldn’t send OTP', msg);
     } finally {
-      clearTimeout(timeout);
       setSubmitting(false);
     }
   };
@@ -156,127 +183,26 @@ const Page1 = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#D9CED4',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 0,
-    position: "relative"
-  },
-  topSection: {
-    width: '100%',
-    alignItems: 'center',
-    height: height * 0.38,
-    position: 'relative',
-    top: 0
-  },
-  worker: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  content: {
-    width: '92%',
-    backgroundColor: 'white',
-    borderTopLeftRadius: width * 0.12,
-    borderTopRightRadius: width * 0.12,
-    alignItems: 'center',
-    paddingTop: height * 0.03,
-    paddingBottom: height * 0.02,
-    paddingHorizontal: width * 0.05,
-  },
-  title: {
-    fontSize: width * 0.065,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: height * 0.01,
-    color: '#111',
-  },
-  subtitle: {
-    fontSize: width * 0.035,
-    color: '#888',
-    textAlign: 'center',
-    marginBottom: height * 0.025,
-  },
-  inputSection: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: height * 0.045,
-  },
-  phoneNumber: {
-    width: '60%',
-    fontSize: width * 0.05,
-    color: '#111',
-    textAlign: 'center',
-  },
-  underline: {
-    width: '60%',
-    height: 2,
-    backgroundColor: '#2859C5',
-    marginTop: 2,
-    borderRadius: 2,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: height * 0.02,
-    width: '100%',
-    paddingLeft: 10,
-  },
-  customCheckbox: {
-    marginRight: 6,
-  },
-  checkboxBox: {
-    width: width * 0.045,
-    height: width * 0.045,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#2859C5',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxBoxChecked: {
-    backgroundColor: '#2859C5',
-  },
-  checkboxTick: {
-    color: '#fff',
-    fontSize: width * 0.035,
-    fontWeight: 'bold',
-  },
-  agreeText: {
-    fontSize: width * 0.03,
-    color: '#444',
-    flexShrink: 1,
-  },
-  link: {
-    color: '#2859C5',
-    textDecorationLine: 'underline',
-  },
-  button: {
-    backgroundColor: '#2859C5',
-    width: '90%',
-    paddingVertical: height * 0.018,
-    borderRadius: 14,
-    alignItems: 'center',
-    marginTop: height * 0.01,
-    marginBottom: height * 0.012,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: width * 0.045,
-    fontWeight: 'bold',
-  },
-  accountText: {
-    fontSize: width * 0.034,
-    color: '#444',
-    marginTop: 2,
-  },
-  accountLink: {
-    color: '#2859C5',
-    textDecorationLine: 'underline',
-  },
+  container: { flex: 1, backgroundColor: '#D9CED4', alignItems: 'center', justifyContent: 'flex-end', gap: 0, position: 'relative' },
+  topSection: { width: '100%', alignItems: 'center', height: height * 0.38, position: 'relative', top: 0 },
+  worker: { width: '100%', height: '100%', resizeMode: 'contain' },
+  content: { width: '92%', backgroundColor: 'white', borderTopLeftRadius: width * 0.12, borderTopRightRadius: width * 0.12, alignItems: 'center', paddingTop: height * 0.03, paddingBottom: height * 0.02, paddingHorizontal: width * 0.05 },
+  title: { fontSize: width * 0.065, fontWeight: 'bold', textAlign: 'center', marginBottom: height * 0.01, color: '#111' },
+  subtitle: { fontSize: width * 0.035, color: '#888', textAlign: 'center', marginBottom: height * 0.025 },
+  inputSection: { width: '100%', alignItems: 'center', marginBottom: height * 0.045 },
+  phoneNumber: { width: '60%', fontSize: width * 0.05, color: '#111', textAlign: 'center' },
+  underline: { width: '60%', height: 2, backgroundColor: '#2859C5', marginTop: 2, borderRadius: 2 },
+  checkboxRow: { flexDirection: 'row', alignItems: 'center', marginBottom: height * 0.02, width: '100%', paddingLeft: 10 },
+  customCheckbox: { marginRight: 6 },
+  checkboxBox: { width: width * 0.045, height: width * 0.045, borderRadius: 4, borderWidth: 2, borderColor: '#2859C5', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  checkboxBoxChecked: { backgroundColor: '#2859C5' },
+  checkboxTick: { color: '#fff', fontSize: width * 0.035, fontWeight: 'bold' },
+  agreeText: { fontSize: width * 0.03, color: '#444', flexShrink: 1 },
+  link: { color: '#2859C5', textDecorationLine: 'underline' },
+  button: { backgroundColor: '#2859C5', width: '90%', paddingVertical: height * 0.018, borderRadius: 14, alignItems: 'center', marginTop: height * 0.01, marginBottom: height * 0.012 },
+  buttonText: { color: 'white', fontSize: width * 0.045, fontWeight: 'bold' },
+  accountText: { fontSize: width * 0.034, color: '#444', marginTop: 2 },
+  accountLink: { color: '#2859C5', textDecorationLine: 'underline' },
 });
 
 export default Page1;

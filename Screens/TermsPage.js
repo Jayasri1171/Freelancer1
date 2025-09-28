@@ -5,8 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 const TermsPage = () => {
     const navigation = useNavigation();
     const handleAgree = () => {
-    navigation.goBack(); // Go back to Page1
-  };
+        navigation.navigate({
+            name: navigation.getState().routes[navigation.getState().index - 1].name,
+            params: { agreed: true },
+            merge: true, // Important: merge params with existing ones
+        });
+    };
     return (
         <View style={styles.container}>
             <View style={styles.whitebox}>
@@ -17,80 +21,80 @@ const TermsPage = () => {
 
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <View style={styles.subheadinginscroll}>
-                        <Text style={{ fontSize: 12 }}>Service Roles: Plumber, Cleaner, Electrician, Technician{"\n"}
+                        <Text style={{ fontSize: 12 }}>
                             Effective Date: 7/7/25{"\n"}
                             Company Name: Cube Engineers.
                         </Text></View>
-                    <Text style={styles.sectionTitle}>1. Employment Scope</Text>
+                    <Text style={styles.sectionTitle}>1. Eligibility</Text>
                     <Text style={styles.sectionText}>
-                        • The employee agrees to work in one or more of the following roles: Plumber, Cleaner, Electrician, or Technician to provide services at the client’s home as assigned by the company.
+                        • This agreement applies to individuals or businesses that have acquired a franchise from our company for selling food products under our brand.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>2. Working Hours & Scheduling</Text>
+                    <Text style={styles.sectionTitle}>2. Franchise Operations</Text>
                     <Text style={styles.sectionText}>
-                        • Work will be assigned based on customer bookings and availability.
-                        {'\n'}• Employees are expected to respond to assignments promptly and arrive at the customer’s location within the specified time (generally within 30–60 minutes unless otherwise informed).
-                        {'\n'}• Work hours may vary depending on demand.
+                        • You agree to operate your franchise in line with the company’s standards, maintain high-quality food, ensure excellent customer service, and protect the brand’s reputation.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>3. Duties and Responsibilities</Text>
+                    <Text style={styles.sectionTitle}>3.  Use of Systems & Tools</Text>
                     <Text style={styles.sectionText}>
-                        • Perform assigned tasks (plumbing, cleaning, electrical, or technical) efficiently and professionally.
-                        {'\n'}• Respect customer property and privacy.
-                        {'\n'}• Report job completion and any issues encountered to the supervisor or platform immediately.
-                        {'\n'}• Carry proper identification and wear the company uniform if provided.
+                        • You may use the company’s provided tools, including software, ordering systems, and reporting platforms, to manage your franchise operations effectively and efficiently.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>4. Code of Conduct</Text>
+                    <Text style={styles.sectionTitle}>4. Compliance</Text>
                     <Text style={styles.sectionText}>
-                        • Employees must behave respectfully and professionally at all times.
-                        {'\n'}• Use of abusive language, harassment, or any form of misconduct will lead to immediate termination.
-                        {'\n'}• No personal favors or services should be accepted or performed outside the assigned task.
+                        • You must comply with all applicable laws, licenses, health and safety regulations, and industry standards required to operate a food business in your location.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>5. Payment and Compensation</Text>
+                    <Text style={styles.sectionTitle}>5. Payments & Fees</Text>
                     <Text style={styles.sectionText}>
-                        • Payment will be made on a weekly/monthly basis or per job completed, as per the agreement.
-                        {'\n'}• Invoices or job reports must be submitted as required for timely payment.
-                        {'\n'}• No additional charges should be taken from the customer unless approved by the company.
+                        • You are responsible for timely payment of franchise fees, royalty charges, and other financial obligations as outlined in the franchise agreement.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>6. Tools and Equipment</Text>
+                    <Text style={styles.sectionTitle}>6. Data Handling & Privacy</Text>
                     <Text style={styles.sectionText}>
-                        • Employees must maintain and use tools responsibly.
-                        {'\n'}• In case tools are provided by the company, any loss or damage due to negligence will be deducted from the salary.
+                        • You agree to handle customer information, payment details, and business data securely and in accordance with applicable privacy laws and company policies.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>7. Customer Confidentiality</Text>
+                    <Text style={styles.sectionTitle}>7. Brand & Intellectual Property</Text>
                     <Text style={styles.sectionText}>
-                        • Employees must not disclose or misuse any personal or property-related information obtained during the service.
-                        {'\n'}• Any breach of confidentiality will lead to strict action.
+                        • The brand name, logos, recipes, menus, marketing materials, and other intellectual property belong to the company and must be used only as permitted.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>8. Safety and Hygiene</Text>
+                    <Text style={styles.sectionTitle}>8. Training & Support</Text>
                     <Text style={styles.sectionText}>
-                        • Employees are expected to follow proper safety protocols.
-                        {'\n'}• Cleaners must use approved cleaning agents and maintain hygiene standards.
-                        {'\n'}• Electricians and technicians must use personal protective equipment (PPE) wherever applicable.
+                        • You agree to participate in training programs and use the company’s support services to ensure smooth operations and adherence to business guidelines.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>9. Termination of Employment</Text>
+                    <Text style={styles.sectionTitle}>9. Marketing & Promotion</Text>
                     <Text style={styles.sectionText}>
-                        • Either party can terminate employment with prior notice (minimum 7 days).
-                        {'\n'}• Immediate termination can occur due to misconduct, negligence, breach of terms, or poor performance.
+                        • You shall follow brand-approved marketing strategies and promotional campaigns to grow your franchise while ensuring consistency and integrity.
                     </Text>
 
-                    <Text style={styles.sectionTitle}>10. Liability</Text>
+                    <Text style={styles.sectionTitle}>10. Termination</Text>
                     <Text style={styles.sectionText}>
-                        • The company is not responsible for any injury caused by negligence or non-adherence to safety protocols.
-                        {'\n'}• Any damage caused to the customer’s property due to employee fault may lead to compensation recovery.
+                        • Failure to comply with operational standards, misuse of tools or data, or any actions that damage the brand’s image may result in suspension or termination of the franchise agreement.
+                    </Text>
+
+                    <Text style={styles.sectionTitle}>11. Indemnity & Liability</Text>
+                    <Text style={styles.sectionText}>
+                        • You agree to indemnify the company against any losses, claims, or damages resulting from your operations, negligence, or non-compliance with this agreement.
+                    </Text>
+
+                    <Text style={styles.sectionTitle}>12. Amendments</Text>
+                    <Text style={styles.sectionText}>
+                        • The company may update or revise these terms periodically. Continued operation of the franchise after such updates constitutes your acceptance of the new terms.
+                    </Text>
+
+                    <Text style={styles.sectionTitle}>13. Agreement</Text>
+                    <Text style={styles.sectionText}>
+                        • By signing this agreement and operating the franchise, you confirm that you understand and accept these terms and commit to running your business with integrity, transparency, and professionalism.
                     </Text>
 
                     <TouchableOpacity style={styles.agreeButton} onPress={handleAgree}>
                         <Text style={styles.agreeText}>Agree</Text>
                     </TouchableOpacity>
                     <Text style={styles.footerText}>
-                        Already have an <Text style={{ color: '#2859C5', textDecorationLine: 'underline', fontWeight: 'bold' }}>Account?</Text>
+                        Already have an <Text style={{ color: '#2859C5', textDecorationLine: 'underline', fontWeight: 'bold' }} onPress={() => navigation.navigate("SignupPage")}>Account?</Text>
                     </Text>
                 </ScrollView>
             </View>
