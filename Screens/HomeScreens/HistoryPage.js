@@ -236,7 +236,7 @@ const HistoryPage = () => {
             <Text style={styles.paymentOption}>☑ Cash / PhonePe</Text>
 
             <TouchableOpacity style={styles.proceedBtn}>
-              <Text style={styles.proceedText}>Proceed</Text>
+              <Text style={styles.proceedText} >Proceed</Text>
             </TouchableOpacity>
           </View>
         </View>
