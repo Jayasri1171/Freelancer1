@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,35 +9,185 @@ import {
   Dimensions,
   ScrollView,
   Animated,
+  Alert
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useRoute } from "@react-navigation/native";
+
 
 const { width, height } = Dimensions.get("window");
 
 const HistoryPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const pagerRef = useRef(null);
+  const route = useRoute();
+  const { loginData } = route.params;
 
   const tabs = ["PRODUCTS", "COMPLETED"];
 
-  const products = [
-    { id: 1, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
-    { id: 2, name: "Pot Curd", price: 70, qty: 30, subtitle: "Pot Curd", image: require("../../assets/potCurd.png") },
-    { id: 3, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 4, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 5, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 6, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 7, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 8, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
-    { id: 9, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
-    { id: 10, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
-    { id: 11, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
-    { id: 12, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
-    { id: 13, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  const [products, setProducts] = useState([]);
 
-  ];
+  const [orderAmount, setOrderAmount] = useState(0);
+  const [deliveryCharge, setDeliveryCharge] = useState(50); // example fixed charge
+  const [totalPayment, setTotalPayment] = useState(0);
+
+  // const products = [
+  //   { id: 1, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  //   { id: 2, name: "Pot Curd", price: 70, qty: 30, subtitle: "Pot Curd", image: require("../../assets/potCurd.png") },
+  //   { id: 3, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 4, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 5, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 6, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 7, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 8, name: "Pala Kova", price: 150, qty: 30, subtitle: "Pala Kova", image: require("../../assets/palakova.png") },
+  //   { id: 9, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  //   { id: 10, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  //   { id: 11, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  //   { id: 12, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+  //   { id: 13, name: "Curd Rice", price: 50, qty: 30, subtitle: "Curd Rice", image: require("../../assets/curdRice.png") },
+
+  // ];
+
+
+
+
+  useEffect(() => {
+    // Whenever products change, recalc totals
+    const amount = products.reduce(
+      (sum, p) => sum + p.price * p.qty,
+      0
+    );
+    setOrderAmount(amount);
+    setTotalPayment(amount + deliveryCharge);
+  }, [products, deliveryCharge]);
+
+  const handleIncrease = (id) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, qty: p.qty + 1 } : p
+      )
+    );
+  };
+
+
+  const handleDecrease = (id) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id && p.qty > 0 ? { ...p, qty: p.qty - 1 } : p
+      )
+    );
+  };
+
+
+  const handleCheckout = async () => {
+  const cartItems = products.filter(p => p.qty > 0);
+
+  if (cartItems.length === 0) {
+    Alert.alert("Cart is empty", "Please add some products before checkout");
+    return;
+  }
+
+  const orderPayload = {
+    phone: loginData.data.phone,
+    location: loginData.data.location,
+    items: cartItems.map(p => ({
+      id: p.id,
+      name: p.name,
+      qty: p.qty,
+      price: p.price
+    }))
+  };
+console.log(orderPayload)
+
+  try {
+    const response = await fetch(
+      "https://cube-backend-service.onrender.com/api/orders/add",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      }
+    );
+
+    // Read text first (safe even if it's HTML)
+    const text = await response.text();
+    console.log("Server raw response:", text);
+
+    // Try JSON parse only if it’s valid JSON
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      Alert.alert("Server Error", "Unexpected response from server.");
+      return;
+    }
+
+    if (response.ok) {
+      Alert.alert("Order Placed ✅", "Your order has been created!");
+      setProducts(prev => prev.map(p => ({ ...p, qty: 0 })));
+      setActiveTab(1);
+      pagerRef.current?.setPage(1);
+    } else {
+      Alert.alert("Error", data.message || "Failed to place order.");
+    }
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Error", "Something went wrong while placing the order.");
+  }
+};
+
+
+
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          "https://cube-backend-service.onrender.com/api/products/view",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ phoneNumber: loginData.data.phone }), // <-- replace dynamically
+          }
+        );
+
+        const result = await response.json();
+
+        if (result?.data && result?.images) {
+          const { data, images } = result;
+
+          const mappedProducts = Object.entries(data).map(([id, product], index) => {
+            // match imageId -> find signed URL
+            const imageUrl = images.find((url) =>
+              url.includes(product.image)
+            );
+
+            return {
+              id, // use backend ID
+              name: product.name,
+              subtitle: product.quantity || "",
+              price: parseInt(product.price) || 0,
+              qty: 0,
+              image: { uri: imageUrl },
+            };
+          });
+
+          setProducts(mappedProducts);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
+
 
   const [completedOrders, setCompletedOrders] = useState([
     {
@@ -196,11 +346,17 @@ const HistoryPage = () => {
                     <Text style={styles.productPrice}>₹ {item.price}.00</Text>
                   </View>
                   <View style={styles.qtyBox}>
-                    <TouchableOpacity style={styles.circleBtn}>
+                    <TouchableOpacity
+                      style={styles.circleBtn}
+                      onPress={() => handleDecrease(item.id)}
+                    >
                       <Text style={styles.circleBtnText}>-</Text>
                     </TouchableOpacity>
                     <Text style={styles.qtyText}>{item.qty}</Text>
-                    <TouchableOpacity style={styles.circleBtn1}>
+                    <TouchableOpacity
+                      style={styles.circleBtn1}
+                      onPress={() => handleIncrease(item.id)}
+                    >
                       <Text style={styles.circleBtnText1}>+</Text>
                     </TouchableOpacity>
                   </View>
@@ -223,19 +379,19 @@ const HistoryPage = () => {
           <View style={styles.summaryBox}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Order Amount</Text>
-              <Text style={styles.summaryValue}>₹16522.00</Text>
+              <Text style={styles.summaryValue}>₹{orderAmount}.00</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Delivery</Text>
-              <Text style={styles.summaryValue}>₹150.00</Text>
+              <Text style={styles.summaryValue}>₹{deliveryCharge}.00</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.totalLabel}>Total Payment</Text>
-              <Text style={styles.totalValue}>₹16672.00</Text>
+              <Text style={styles.totalValue}>₹{totalPayment}.00</Text>
             </View>
             <Text style={styles.paymentOption}>☑ Cash / PhonePe</Text>
 
-            <TouchableOpacity style={styles.proceedBtn}>
+            <TouchableOpacity style={styles.proceedBtn} onPress={handleCheckout}>
               <Text style={styles.proceedText}>Proceed</Text>
             </TouchableOpacity>
           </View>
@@ -248,23 +404,23 @@ const HistoryPage = () => {
               <View key={order.id} style={styles.orderCard}>
                 {order.expanded ? (
                   <>
-                    <View style={{ flexDirection: "row" , gap:20 , justifyContent:"space-between"}}>
-                      <View style={{ flexDirection: "column" , width:"58%" }}>
-                      {order.products.map((p, idx) => (
+                    <View style={{ flexDirection: "row", gap: 20, justifyContent: "space-between" }}>
+                      <View style={{ flexDirection: "column", width: "58%" }}>
+                        {order.products.map((p, idx) => (
 
-                        <View key={idx} style={styles.expandedRow}>
-                          <Image source={p.image} style={styles.expandedImg} />
-                          <View style={{ flex: 1, marginRight: 10 }}>
-                            <Text style={styles.expandedText}>
-                              {p.name}
-                            </Text>
-                            <Text style={styles.expandedText}>
-                              X{p.qty}
-                            </Text>
+                          <View key={idx} style={styles.expandedRow}>
+                            <Image source={p.image} style={styles.expandedImg} />
+                            <View style={{ flex: 1, marginRight: 10 }}>
+                              <Text style={styles.expandedText}>
+                                {p.name}
+                              </Text>
+                              <Text style={styles.expandedText}>
+                                X{p.qty}
+                              </Text>
+                            </View>
+                            <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
                           </View>
-                          <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
-                        </View>
-                      ))}
+                        ))}
                       </View>
                       <View style={styles.orderFooter}>
                         <Text style={styles.dateText}>
@@ -486,7 +642,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
     marginTop: 8,
-    gap:20,
+    gap: 20,
     // alignContent:"flex-end",
     // backgroundColor:"blue"
   },

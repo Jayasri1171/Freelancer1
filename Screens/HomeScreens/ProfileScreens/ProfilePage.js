@@ -25,9 +25,10 @@ const ProfilePage = ({ navigation }) => {
 				if (!res.ok) throw new Error(`Status: ${res.status}`);
 
 				const data = await res.json();
-				if (data?.profilePic) {
-					setProfileImage({ uri: data.profilePic }); // backend returns profile URL
+				if (data?.signedUrl) {
+					setProfileImage({ uri: data.signedUrl }); // backend returns profile URL
 				} else {
+					
 					setProfileImage(profileImage); // fallback default
 				}
 			} catch (err) {

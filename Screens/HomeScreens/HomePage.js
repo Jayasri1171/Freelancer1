@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import { LineChart } from "react-native-chart-kit";
 
 const { width, height } = Dimensions.get("window"); // Get device dimensions
 
@@ -90,11 +91,50 @@ const HomePage = () => {
         </View>
 
         {/* Chart */}
+        {/* Chart */}
         <View style={styles.chartBox}>
-          <View style={styles.chartPlaceholder}>
-            <Text style={styles.chartText}>[Chart]</Text>
-          </View>
+          <LineChart
+            data={{
+              labels: ["0D", "5D", "10D", "15D", "20D", "25D", "30D"], // X-axis
+              datasets: [
+                {
+                  data: [15,14,15,13,16,15,13,17,12,15,15,17,14,18,13,19,18,15,17,16,20,30], // Y-axis values
+                  color: (opacity = 1) => `rgba(255, 255, 0, ${opacity})`,
+                  strokeWidth: 2,
+                  color: () => `#ffff00`,
+                },
+              ],
+            }}
+            width={width * 0.9}
+            height={height * 0.25}
+            fromZero={true}  
+             segments={4}  
+            withDots={false}            // no round dots
+            withInnerLines={false}      // remove grid lines inside
+            withOuterLines={true}       // keep axis lines
+            withVerticalLabels={true}   // show X-axis labels
+            withHorizontalLabels={true} // show Y-axis labels
+            chartConfig={{
+              backgroundColor: "#222",
+              backgroundGradientFrom: "#222",
+              backgroundGradientTo: "#222",
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 255, 0, ${opacity})`,
+              labelColor: () => "#fff",
+              propsForBackgroundLines: {
+                stroke: "#444", // subtle grid/axis line color
+              },
+              fillShadowGradientFrom: "#ffff00",
+              fillShadowGradientTo: "#000",
+              fillShadowGradientFromOpacity: 0.4,
+              fillShadowGradientToOpacity:1,
+            }}
+            style={{
+              borderRadius: 18,
+            }}
+          />
         </View>
+
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
@@ -186,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     paddingTop: height * 0.04,
     alignItems: "center",
-    paddingHorizontal:7,
+    paddingHorizontal: 7,
   },
   headerRow: {
     flexDirection: "row",
@@ -296,14 +336,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: width * 0.03,
     marginBottom: 2,
-    fontWeight:500,
+    fontWeight: 500,
 
   },
   targetDesc: {
     color: "#fff",
     fontSize: width * 0.02,
     marginTop: 2,
-    fontWeight:500,
+    fontWeight: 500,
   },
   statsCol: {
     width: "48%",
