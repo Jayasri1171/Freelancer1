@@ -1,19 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform, Dimensions , ActivityIndicator} from 'react-native';
 import Mobile from '../assets/Mobilehand.png';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+
+import { useAuth } from './AuthContext';
+import Constants from 'expo-constants';
+
+const { width, height } = Dimensions.get('window');
+const { BASE_URL } = Constants.expoConfig.extra;
+const VERIFY_OTP_API = `${BASE_URL}/api/franchise/verifyOtp`;
+
 
 const Otpscreen = () => {
-    const route = useRoute();
-    
-    const { loginData } = route.params;
 
-    navigator = useNavigation();
+
+      const { login, loginData } = useAuth();
+    
+    const navigator = useNavigation();
     const [checked, setChecked] = useState(false);
-    const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+    const [otpDigits, setOtpDigits] = useState(['', '', '', '']);
     const [resendTimer, setResendTimer] = useState(60);
-    const inputs = Array(6).fill().map(() => useRef(null));
+    const inputs = Array(4).fill().map(() => useRef(null));
     const timerRef = useRef();
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (resendTimer > 0) {
@@ -23,19 +33,12 @@ const Otpscreen = () => {
     }, [resendTimer]);
 
 
-
-     useEffect(() => {
-    if (route.params?.agreed) {
-      setChecked(true);
-    }
-  }, [route.params?.agreed]);
-
     const handleChange = (text, idx) => {
         if (/^\d?$/.test(text)) {
             const newOtp = [...otpDigits];
             newOtp[idx] = text;
             setOtpDigits(newOtp);
-            if (text && idx < 5) {
+            if (text && idx < 3) {
                 inputs[idx + 1].current.focus();
             }
         }
@@ -53,6 +56,43 @@ const Otpscreen = () => {
             setResendTimer(60);
         }
     };
+
+
+     const handleVerify = async () => {
+    if (otpDigits.some(d => d === '')) {
+      Toast.show({ type: 'error', text1: 'Invalid OTP', text2: 'Enter all 4 digits' });
+      return;
+    }
+
+    setSubmitting(true);
+    const otp = otpDigits.join('');
+    // console.log(otp);
+    try {
+      const res = await fetch(VERIFY_OTP_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verificationId: loginData.response.data.verificationId, // from login response
+    code: otpDigits.join('') }),
+      });
+
+      console.log({ verificationId: loginData.response.data.verificationId, // from login response
+    code: otpDigits.join('') });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.message || 'OTP verification failed');
+
+      Toast.show({ type: 'success', text1: 'Verified', text2: 'OTP verified successfully!' });
+        console.log(res)
+      setTimeout(() => {
+        navigator.navigate('Container');
+      }, 1000);
+    } catch (err) {
+      Toast.show({ type: 'error', text1: 'Verification failed', text2: err.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
 
     return (
         <KeyboardAvoidingView
@@ -116,14 +156,37 @@ const Otpscreen = () => {
                             <Text style={styles.link} onPress={() => navigator.navigate('TermsPage')}> T&amp;C and Privacy policy</Text>
                         </Text>
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={() => navigator.navigate("Container" , {loginData})}>
-                        <Text style={styles.buttonText}>Verify</Text>
+                    <TouchableOpacity
+                        style={[styles.button, submitting && { opacity: 0.5 }]}
+                        disabled={submitting}
+                        onPress={handleVerify}
+                    >
+                        {submitting ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Verify</Text>
+                        )}
                     </TouchableOpacity>
+
                     <Text style={styles.accountText}>
                         Don't have an
-                        <Text style={styles.accountLink} onPress={() => navigator.navigate("SignupPage")}> Account?</Text>
+                        <Text
+                            style={styles.accountLink}
+                            onPress={() => navigator.navigate('SignupPage')}
+                        >
+                            {' '}
+                            Account?
+                        </Text>
                     </Text>
                 </View>
+
+                {submitting && (
+                    <View style={styles.loaderOverlay}>
+                        <ActivityIndicator size="large" color="#fff" />
+                    </View>
+                )}
+
+                <Toast />
             </View>
         </KeyboardAvoidingView>
     );
@@ -148,19 +211,8 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         // marginTop: 18,
     },
-    content: {
-        width: '92%',
-        backgroundColor: 'white',
-        borderTopLeftRadius: 50,
-        borderTopRightRadius: 50,
-        alignItems: 'center',
-        paddingTop: '10%',
-        paddingBottom: '10%',
-        paddingHorizontal: '3%',
-        // position: 'absolute',
-        bottom: 0,
-        minHeight: '50%',
-    },
+    content: { width: '92%', backgroundColor: 'white', borderTopLeftRadius: width * 0.12, borderTopRightRadius: width * 0.12, alignItems: 'center', paddingTop: height * 0.03, paddingBottom: height * 0.06, paddingHorizontal: width * 0.05 },
+
     title: {
         fontSize: 26,
         fontWeight: 'bold',
@@ -272,6 +324,17 @@ const styles = StyleSheet.create({
         color: '#2859C5',
         textDecorationLine: 'underline',
     },
+    loaderOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
 });
 
 export default Otpscreen;

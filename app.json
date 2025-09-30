@@ -3,6 +3,7 @@
     "name": "App",
     "slug": "App",
     "version": "1.0.0",
+    "projectId": "9a8f631a-0ba5-4659-836d-e76d442d927f",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

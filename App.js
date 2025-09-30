@@ -12,14 +12,19 @@ import HomePage from './Screens/HomeScreens/HomePage';
 import NotificationCard from './Screens/NotificationCard';
 import Mainrouting from './Screens/Mainrouting';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import { AuthProvider } from './Screens/AuthContext'; 
 
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <Mainrouting />
+         <AuthProvider>  
+          <Mainrouting />
+        </AuthProvider>
       </SafeAreaView>
+      <Toast />
     </SafeAreaProvider>
 
     //  <Splashscreen />

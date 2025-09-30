@@ -12,60 +12,17 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { LineChart } from "react-native-chart-kit";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { AuthContext } from "../AuthContext";
+import { useContext } from "react";
 
 
 const { width, height } = Dimensions.get("window"); // Get device dimensions
 
-const reviews = [
-  {
-    name: "Naveen Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman1.jpg"),
-  },
-  {
-    name: "Mohan Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman2.jpg"),
-  },
-  {
-    name: "Naveen Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman1.jpg"),
-  },
-  {
-    name: "Mohan Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman2.jpg"),
-  },
-  {
-    name: "Naveen Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman1.jpg"),
-  },
-  {
-    name: "Mohan Sesetti",
-    custId: "466453",
-    service: "Pipe Leakage",
-    date: "18/08/2025",
-    avatar: require("../../assets/Homeman2.jpg"),
-  },
-  // ... rest of reviews
-];
-
 const HomePage = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { loginData } = route.params;
+  const { loginData } = useContext(AuthContext);
+  // console.log("Login Data in HomePage:", loginData);
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 0 }}>
@@ -176,7 +133,7 @@ const HomePage = () => {
           <View style={styles.statsCol}>
             <View style={styles.statsCard}>
               <Text style={styles.statsTitle}>Total Due</Text>
-              <Text style={styles.statsAmount}>₹ 17,235.89</Text>
+              <Text style={styles.statsAmount}>₹ {loginData.data.due}.00</Text>
               <View style={styles.statsDivider}>
                 <View style={styles.statsChangeRow}>
                   <Text style={styles.statsChange}> +67%</Text>

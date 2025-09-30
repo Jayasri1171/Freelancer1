@@ -16,8 +16,17 @@ import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator } from "react-native";
+import Toast from "react-native-toast-message";
 
 import TechnicianImg from '../assets/technician.png';
+
+
+import Constants from 'expo-constants';
+const { BASE_URL } = Constants.expoConfig.extra;
+const API_URL = `${BASE_URL}/api/franchise/register`;
+
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,9 +40,8 @@ const SignupPage = () => {
     const route = useRoute();
     const [checked, setChecked] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
-    const [availableDistricts, setAvailableDistricts] = useState([]);
-    const [availableCities, setAvailableCities] = useState([]);
-    const [availableAreas, setAvailableAreas] = useState([]);
+
+
     const [form, setForm] = useState({
         name: '',
         phone: '',
@@ -65,59 +73,18 @@ const SignupPage = () => {
         };
     }, []);
 
-     useEffect(() => {
-    if (route.params?.agreed) {
-      setChecked(true);
-    }
-  }, [route.params?.agreed]);
-    // Update available districts when state changes
     useEffect(() => {
-        if (form.state && districtsByState[form.state]) {
-            setAvailableDistricts(districtsByState[form.state]);
-            // Reset district and city when state changes
-            setForm(prev => ({ ...prev, district: '', city: '', areas: [] }));
-            setAvailableCities([]);
-            setAvailableAreas([]);
-        } else {
-            setAvailableDistricts([]);
+        if (route.params?.agreed) {
+            setChecked(true);
         }
-    }, [form.state]);
-
-    // Update available cities when district changes
-    useEffect(() => {
-        if (form.district && citiesByDistrict[form.district]) {
-            setAvailableCities(citiesByDistrict[form.district]);
-            // Reset city when district changes
-            setForm(prev => ({ ...prev, city: '', areas: [] }));
-            setAvailableAreas([]);
-        } else {
-            setAvailableCities([]);
-        }
-    }, [form.district]);
-
-    // Update available areas when city changes
-    
+    }, [route.params?.agreed]);
 
     const handleInput = (key, value) => {
         setForm({ ...form, [key]: value });
     }
 
-    const handleAreaSelect = (area) => {
-        // Limit selection to 3 areas
-        if (form.areas.includes(area)) {
-            setForm(prev => ({
-                ...prev,
-                areas: prev.areas.filter(a => a !== area)
-            }));
-        } else if (form.areas.length < 3) {
-            setForm(prev => ({
-                ...prev,
-                areas: [...prev.areas, area]
-            }));
-        } else {
-            alert("You can select a maximum of 3 areas");
-        }
-    };
+
+    const [loading, setLoading] = useState(false);
 
     const navigator = useNavigation();
 
@@ -149,18 +116,37 @@ const SignupPage = () => {
                 [key]: file,
             }));
         } catch (err) {
-            console.warn("DocumentPicker Error:", err);
+            console.log("DocumentPicker Error:", err);
         }
     };
 
     const handleSubmit = async () => {
+        // --- Validations ---
+        if (!form.name || !form.phone || !form.email || !form.city || !form.location) {
+            Toast.show({ type: "error", text1: "All fields are required" });
+            return;
+        }
+        if (!/^\d{10}$/.test(form.phone)) {
+            Toast.show({ type: "error", text1: "Enter a valid 10-digit phone number" });
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(form.email)) {
+            Toast.show({ type: "error", text1: "Enter a valid email address" });
+            return;
+        }
+        if (!form.aadhar || !form.pan || !form.bank) {
+            Toast.show({ type: "error", text1: "Please upload all required documents" });
+            return;
+        }
         if (!checked) {
-            alert("Please agree to Terms & Conditions before applying.");
+            Toast.show({ type: "error", text1: "You must agree to Terms & Conditions" });
             return;
         }
 
-
         try {
+
+            setLoading(true);
             const formData = new FormData();
 
             // Text fields
@@ -172,7 +158,7 @@ const SignupPage = () => {
 
 
             // Documents
-            ["aadhar", "pan", "certificate", "bank"].forEach((key) => {
+            ["aadhar", "pan", "bank"].forEach((key) => {
                 if (form[key]) {
                     formData.append("files", {
                         uri: form[key].uri,
@@ -182,24 +168,27 @@ const SignupPage = () => {
                 }
             });
             console.log(formData)
-            const response = await fetch(
-                "https://cube-backend-service.onrender.com/api/franchise/register",
+            const response = await fetch(API_URL,
                 {
                     method: "POST",
                     body: formData,
                 }
             );
-            const text = await response.text();
+            const text = await response.json().catch(() => null);
 
             if (response.ok) {
-                alert("Application submitted successfully!");
-                navigator.navigate("Page1");
+                Toast.show({ type: "success", text1: "Application submitted successfully!" });
+                setTimeout(() => {
+                    navigator.navigate("Page1");
+                }, 1000);
             } else {
-                alert("Failed to submit: " + text);
+                Toast.show({ type: "error", text1: "Failed to submit", text2: text });
             }
         } catch (error) {
-            console.error("Upload error:", error);
-            alert("Something went wrong, please try again.");
+            console.log("Upload error:", error);
+            Toast.show({ type: "error", text1: "Something went wrong, try again" });
+        } finally {
+            setLoading(false); // stop loader
         }
     };
 
@@ -344,8 +333,10 @@ const SignupPage = () => {
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.applyBtn} onPress={handleSubmit}>
+                    <TouchableOpacity style={styles.applyBtn} onPress={handleSubmit} disabled={loading}  >
+
                         <Text style={styles.applyBtnText}>Join as a Franchise</Text>
+
                     </TouchableOpacity>
 
                     <Text style={styles.accountText}>
@@ -353,6 +344,14 @@ const SignupPage = () => {
                     </Text>
                 </View>
             </ScrollView>
+
+            {loading && (
+                <View style={styles.loaderOverlay}>
+                    <ActivityIndicator size="large" color="#2859C5" />
+                    <Text style={styles.loaderText}>Submitting your application...</Text>
+                </View>
+            )}
+            <Toast position="top" topOffset={50} />
         </View>
     );
 };
@@ -365,13 +364,13 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         alignItems: 'center',
-        flexGrow:1,
-        justifyContent:"flex-end"
+        flexGrow: 1,
+        justifyContent: "flex-end"
     },
     topSection: {
         alignItems: 'center',
         // marginTop: verticalScale(18),
-        position:"relative"
+        position: "relative"
     },
     // techImage: {
     //     width: width * 0.9,
@@ -381,29 +380,29 @@ const styles = StyleSheet.create({
 
     // },
     techImage: {
-  width: "100%",               // take full width of container
-  aspectRatio: 1.5,            // adjust this ratio to match your image (try 1.5–2)
-  resizeMode: "contain",
-  transform: [{ translateX: -50 }],
-  top:"6%"
-//   alignSelf: "right",
-},
+        width: "100%",               // take full width of container
+        aspectRatio: 1.5,            // adjust this ratio to match your image (try 1.5–2)
+        resizeMode: "contain",
+        transform: [{ translateX: -50 }],
+        top: "6%"
+        //   alignSelf: "right",
+    },
     quote: {
         // width:moderateScale(22),
         fontSize: moderateScale(18),
         color: '#222',
         fontWeight: 'bold',
         textAlign: 'auto',
-        position:"absolute",
-        top:"17%",
-        left:"105%",
+        position: "absolute",
+        top: "17%",
+        left: "105%",
         // maxWidth:"25%",
-        height:"auto",
+        height: "auto",
         // marginBottom: 8,
         width: 136,
         height: 92,
         position: 'absolute',
-    //    backgroundColor:'red',
+        //    backgroundColor:'red',
         textAlign: 'left'
     },
     formBox: {
@@ -596,6 +595,26 @@ const styles = StyleSheet.create({
         color: '#2859C5',
         textDecorationLine: 'underline',
     },
+    applyButton: {
+        backgroundColor: "#007AFF",
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        marginTop: 20,
+    },
+    applyButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+
+     loaderOverlay: {
+        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.3)", justifyContent: "center", alignItems: "center", zIndex: 999,
+    },
+    loaderText: { marginTop: 10, color: "#2859C5", fontSize: moderateScale(16), fontWeight: "500" },
+
 });
 
 

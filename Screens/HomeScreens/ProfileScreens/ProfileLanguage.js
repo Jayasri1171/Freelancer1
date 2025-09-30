@@ -4,6 +4,12 @@ import { Avatar } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useContext } from 'react';
+import { AuthContext } from '../../AuthContext';
+
+import Constants from 'expo-constants';
+const { BASE_URL } = Constants.expoConfig.extra;
+const API_URL_GETPROFILE = `${BASE_URL}/api/franchise/getProfile`;
 
 
 const ProfileLanguage = () => {
@@ -11,12 +17,12 @@ const ProfileLanguage = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const [profileImage, setProfileImage] = useState(require("../../../assets/Profileboy.jpg"));
-    const { loginData } = route.params;
+    const { loginData } = useContext(AuthContext);
      useEffect(() => {
             const fetchProfile = async () => {
               try {
                 // Hit getProfile API
-                const res = await fetch('https://cube-backend-service.onrender.com/api/franchise/getProfile', {
+                const res = await fetch(API_URL_GETPROFILE, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ phone: loginData.data.phone, name: loginData.data.name }),

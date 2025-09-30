@@ -5,12 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 const TermsPage = () => {
     const navigation = useNavigation();
     const handleAgree = () => {
-        navigation.navigate({
-            name: navigation.getState().routes[navigation.getState().index - 1].name,
-            params: { agreed: true },
-            merge: true, // Important: merge params with existing ones
-        });
-    };
+    navigation.goBack();
+    navigation.getParent()?.setParams({ agreed: true }); // optional, if you need the param
+};
     return (
         <View style={styles.container}>
             <View style={styles.whitebox}>

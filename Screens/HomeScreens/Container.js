@@ -1,21 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native";
 
 import HomePage from "./HomePage";
 import HistoryPage from "./HistoryPage";
 import ProfileContainer from "./ProfileScreens/ProfileContainer";
 import NotificationCard from "../NotificationCard";
 import { ServiceAccessProvider } from "./ServiceAccesContext";
+// import { AuthContext } from "../AuthContext"
 
 const Tab = createBottomTabNavigator();
 
 function CustomTabBar({ state, descriptors, navigation }) {
   return (
     <View style={styles.wrapper}>
-      {/* Black pill containing all 3 tabs */}
       <View style={styles.tabContainer}>
         {state.routes.slice(0, 3).map((route, index) => {
           const { options } = descriptors[route.key];
@@ -62,8 +61,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
 }
 
 const Container = () => {
-  const route = useRoute();
-  const { loginData } = route.params;
+  // const { loginData } = useContext(AuthContext); // get loginData from context
 
   return (
     <ServiceAccessProvider>
@@ -71,30 +69,17 @@ const Container = () => {
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          tabBarStyle: { backgroundColor: "tranparent", elevation: 0 }, // fully transparent
+          tabBarStyle: { backgroundColor: "transparent", elevation: 0 },
         }}
       >
-        <Tab.Screen
-          name="Home"
-          component={HomePage}
-          initialParams={{ loginData }}
-        />
-        <Tab.Screen
-          name="History"
-          component={HistoryPage}
-          initialParams={{ loginData }}
-        />
-        <Tab.Screen
-          name="ProfilePage"
-          component={ProfileContainer}
-          initialParams={{ loginData }}
-        />
+        <Tab.Screen name="Home" component={HomePage} />
+        <Tab.Screen name="History" component={HistoryPage} />
+        <Tab.Screen name="ProfilePage" component={ProfileContainer} />
 
         {/* Hidden screen */}
         <Tab.Screen
           name="Notifications"
           component={NotificationCard}
-          initialParams={{ loginData }}
           options={{ tabBarButton: () => null }}
         />
       </Tab.Navigator>
@@ -110,13 +95,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderRadius: 40,
-    backgroundColor: "transparent", // ✅ transparent wrapper
+    backgroundColor: "transparent",
   },
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "black", // ✅ pill stays black
+    backgroundColor: "black",
     borderRadius: 50,
     paddingHorizontal: 20,
     paddingVertical: 10,

@@ -3,12 +3,20 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native
 import { Avatar } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useContext } from 'react';
+import { AuthContext } from '../../AuthContext';
+
+
+
+import Constants from 'expo-constants';
+const { BASE_URL } = Constants.expoConfig.extra;
+const API_URL_GETPROFILE = `${BASE_URL}/api/franchise/getProfile`;
 
 
 
 const ProfileLocation = () => {
    const route = useRoute();
-  const { loginData } = route.params;
+  const { loginData } = useContext(AuthContext);
   const [profileImage, setProfileImage] = useState(require("../../../assets/Profileboy.jpg"));
   const [locations, setLocations] = useState(loginData.data.location || []);
     const navigation = useNavigation();
@@ -17,7 +25,7 @@ const ProfileLocation = () => {
         const fetchProfile = async () => {
           try {
             // Hit getProfile API
-            const res = await fetch('https://cube-backend-service.onrender.com/api/franchise/getProfile', {
+            const res = await fetch(API_URL_GETPROFILE, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ phone: loginData.data.phone, name: loginData.data.name }),
