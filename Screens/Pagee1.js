@@ -43,12 +43,8 @@ const Page1 = () => {
 
 
 
-  useEffect(() => {
-    if (loginData) {
-      // console.log("Already logged in, navigating to Container");
-      navigator.navigate('Container');
-    }
-  }, [loginData]);
+  
+
 
   const isValidPhone = useMemo(() => /^\d{10}$/.test(phoneNumber), [phoneNumber]);
   const disabled = !checked || !isValidPhone || submitting;

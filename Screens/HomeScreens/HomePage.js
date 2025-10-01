@@ -146,7 +146,7 @@ const HomePage = () => {
               <View style={styles.statsDivider}>
                 <View style={styles.statsChangeRow}>
                   <View>
-                    <Text style={styles.statsTitle}>Total Delivery</Text>
+                    <Text style={styles.statsTitle}>Total Deliveries</Text>
                     <Text style={styles.statsAmount}>
                       102 <Text style={styles.statsChangeDesc}>Till today</Text>
                     </Text>

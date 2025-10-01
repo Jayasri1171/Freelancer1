@@ -59,6 +59,15 @@ const Otpscreen = () => {
 
 
      const handleVerify = async () => {
+
+         if (!checked) {
+    Toast.show({
+      type: 'error',
+      text1: 'Agreement Required',
+      text2: 'Please agree to the T&C and Privacy Policy',
+    });
+    return;
+  }
     if (otpDigits.some(d => d === '')) {
       Toast.show({ type: 'error', text1: 'Invalid OTP', text2: 'Enter all 4 digits' });
       return;
@@ -74,7 +83,7 @@ const Otpscreen = () => {
         body: JSON.stringify({ verificationId: loginData.response.data.verificationId, // from login response
     code: otpDigits.join('') }),
       });
-
+      console.log(res);
       console.log({ verificationId: loginData.response.data.verificationId, // from login response
     code: otpDigits.join('') });
       const data = await res.json();
@@ -82,10 +91,10 @@ const Otpscreen = () => {
       if (!res.ok) throw new Error(data?.message || 'OTP verification failed');
 
       Toast.show({ type: 'success', text1: 'Verified', text2: 'OTP verified successfully!' });
-        console.log(res)
+        // console.log(res)
       setTimeout(() => {
         navigator.navigate('Container');
-      }, 1000);
+      }, 2000);
     } catch (err) {
       Toast.show({ type: 'error', text1: 'Verification failed', text2: err.message });
     } finally {

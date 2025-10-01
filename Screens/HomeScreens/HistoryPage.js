@@ -261,14 +261,14 @@ const HistoryPage = () => {
   useEffect(() => {
     const fetchCompletedOrders = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/orders/list`, {
+        const response = await fetch(`${BASE_URL}/api/orders/getFranchiseOrders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phoneNumber: loginData.data.phone }),
+          body: JSON.stringify({ franchiseId: loginData.data.phone }),
         });
 
         const result = await response.json();
-
+        // console.log("Fetched Orders:", result);
         if (result?.data) {
           // Map backend data into your UI-friendly structure
           const mappedOrders = result.data.map((order) => ({
@@ -442,44 +442,48 @@ const HistoryPage = () => {
         </View>
 
         {/* COMPLETED */}
-        {completedOrders.map((order) => (
-          <View key={order.id} style={styles.orderCard}>
-            {order.expanded ? (
-              <View style={{ flexDirection: "row", gap: 20, justifyContent: "space-between" }}>
-                <View style={{ flexDirection: "column", width: "58%" }}>
-                  {order.products.map((p, idx) => (
-                    <View key={idx} style={styles.expandedRow}>
-                      <Image source={p.image} style={styles.expandedImg} />
-                      <View style={{ flex: 1, marginRight: 10 }}>
-                        <Text style={styles.expandedText}>{p.name}</Text>
-                        <Text style={styles.expandedText}>X{p.qty}</Text>
-                      </View>
-                      <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
+        <View key="2" style={styles.page}>
+          <ScrollView>
+            {completedOrders.map((order) => (
+              <View key={order.id} style={styles.orderCard}>
+                {order.expanded ? (
+                  <View style={{ flexDirection: "row", gap: 20, justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: "column", width: "58%" }}>
+                      {order.products.map((p, idx) => (
+                        <View key={idx} style={styles.expandedRow}>
+                          <Image source={p.image} style={styles.expandedImg} />
+                          <View style={{ flex: 1, marginRight: 10 }}>
+                            <Text style={styles.expandedText}>{p.name}</Text>
+                            <Text style={styles.expandedText}>X{p.qty}</Text>
+                          </View>
+                          <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
+                        </View>
+                      ))}
                     </View>
-                  ))}
-                </View>
-                <View style={styles.orderFooter}>
-                  <Text style={styles.dateText}>
-                    Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
-                  </Text>
-                  <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
-                    <Text style={styles.viewText}>View List ▲</Text>
-                  </TouchableOpacity>
-                </View>
+                    <View style={styles.orderFooter}>
+                      <Text style={styles.dateText}>
+                        Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
+                      </Text>
+                      <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
+                        <Text style={styles.viewText}>View List ▲</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.orderRow}>
+                    <Image source={order.products[0]?.image || require("../../assets/Mobilehand.png")} style={styles.orderImg} />
+                    <Text style={styles.dateText}>
+                      Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
+                    </Text>
+                    <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
+                      <Text style={styles.viewText}>View List ▼</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
-            ) : (
-              <View style={styles.orderRow}>
-                <Image source={order.products[0]?.image || require("../../assets/Mobilehand.png")} style={styles.orderImg} />
-                <Text style={styles.dateText}>
-                  Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
-                </Text>
-                <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
-                  <Text style={styles.viewText}>View List ▼</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        ))}
+            ))}
+          </ScrollView>
+        </View>
 
       </PagerView>
     </View>
