@@ -37,7 +37,7 @@ export class PaymentService {
                 description: "Payment for MyApp",
                 prefill: {
                     email: paymentData.email || "",
-                    contact: paymentData.phone || "",
+                    contact: paymentData.userID || "",
                     name: paymentData.name || "",
                 },
                 theme: { color: "#3399cc" },
