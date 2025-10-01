@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -6,26 +6,25 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  Dimensions,
   ScrollView,
   Animated,
-  Alert
+  Alert,
+  Dimensions,
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MaterialIcons } from "@expo/vector-icons";
 import { RFValue } from "react-native-responsive-fontsize";
 import { useRoute } from "@react-navigation/native";
+import Constants from "expo-constants";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+
 import { PaymentService } from "./paymentServie";
 import { AuthContext } from "../AuthContext";
-import { useContext } from "react";
 
-
-
-import Constants from 'expo-constants';
 const { BASE_URL } = Constants.expoConfig.extra;
 const API_URL_VIEW = `${BASE_URL}/api/products/view`;
-const API_URL_ADD = `${BASE_URL}/api/orders/add`;
-
 
 const { width, height } = Dimensions.get("window");
 
@@ -37,171 +36,50 @@ const HistoryPage = () => {
 
   const tabs = ["PRODUCTS", "COMPLETED"];
 
-  const [loading, setLoading] = useState(true); // initially true
-
-
   const [products, setProducts] = useState([]);
+  const [completedOrders, setCompletedOrders] = useState([]);
 
+  const [loading, setLoading] = useState(true);
+  const [loadingCompleted, setLoadingCompleted] = useState(true);
 
   const [orderAmount, setOrderAmount] = useState(0);
-  const [deliveryCharge, setDeliveryCharge] = useState(50); // example fixed charge
+  const [deliveryCharge, setDeliveryCharge] = useState(50); // fixed
   const [totalPayment, setTotalPayment] = useState(0);
 
+  /** --- Calculate totals whenever products change --- */
   useEffect(() => {
-    // Whenever products change, recalc totals
-    const amount = products.reduce(
-      (sum, p) => sum + p.price * p.qty,
-      0
-    );
+    const amount = products.reduce((sum, p) => sum + p.price * p.qty, 0);
     setOrderAmount(amount);
     setTotalPayment(amount + deliveryCharge);
   }, [products, deliveryCharge]);
 
+  /** --- Increase/Decrease product quantity --- */
   const handleIncrease = (id) => {
     setProducts((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, qty: p.qty + 1 } : p
-      )
+      prev.map((p) => (p.id === id ? { ...p, qty: p.qty + 1 } : p))
     );
   };
-
-
   const handleDecrease = (id) => {
     setProducts((prev) =>
-      prev.map((p) =>
-        p.id === id && p.qty > 0 ? { ...p, qty: p.qty - 1 } : p
-      )
+      prev.map((p) => (p.id === id && p.qty > 0 ? { ...p, qty: p.qty - 1 } : p))
     );
   };
 
-
-  const handleCheckout = async () => {
-    // const cartItems = products.filter(p => p.qty > 0);
-
-    // if (cartItems.length === 0) {
-    //   Alert.alert("Cart is empty", "Please add some products before checkout");
-    //   return;
-    // }
-
-    // //   const orderPayload = {
-    // //   FranchiseID: loginData.data.phone,
-    // //   Location: loginData.data.location,
-    // //   itemsID: cartItems.map(p => ({
-    // //     ItemID: String(p.id),        // ensure string
-    // //     ItemQuantity: Number(p.qty), // ensure number
-    // //   })),
-    // //   totalAmount: Number(totalPayment),
-    // // };
-
-
-    // const orderPayload = {
-    //   franchiseId: loginData.data.phone,
-    //   location: loginData.data.location,
-    //   items: JSON.stringify(
-    //     cartItems.reduce((obj, p, ind) => {
-    //       obj[ind] = {
-    //         itemId: String(p.id),
-    //         quantity: Number(p.qty),
-    //       };
-    //       return obj;
-    //     }, {})
-    //   ),
-    //   amount: totalPayment,
-    // };
-
-
-
-
-
-
-    // // FranchiseID, Location, itemsID, totalAmount
-    // console.log(orderPayload)
-
-    // try {
-    //   const response = await fetch(
-    //     API_URL_ADD,
-    //     {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify(orderPayload),
-    //     }
-    //   );
-
-    //   // Read text first (safe even if it's HTML)
-    //   const text = await response.text();
-    //   console.log("Server raw response:", text);
-
-    //   // Try JSON parse only if it’s valid JSON
-    //   let data;
-    //   try {
-    //     data = JSON.parse(text);
-    //   } catch {
-    //     Alert.alert("Server Error", "Unexpected response from server.");
-    //     return;
-    //   }
-
-    //   if (response.ok) {
-    //     Alert.alert("Order Placed ✅", "Your order has been created!");
-    //     setProducts(prev => prev.map(p => ({ ...p, qty: 0 })));
-    //     setActiveTab(1);
-    //     pagerRef.current?.setPage(1);
-    //   } else {
-    //     Alert.alert("Error", data.message || "Failed to place order.");
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    //   Alert.alert("Error", "Something went wrong while placing the order.");
-    // }
-
-
-
-
-
-
-
-
-
-    const paymentData = {
-      amount: totalPayment,
-      userID: loginData.data.phone
-      //   currency: "INR",
-      //   email: "test@example.com",
-      //   phone: "9876543210",
-      //   customerName: "Test User",
-      //   description: "Premium subscription",
-    };
-    // console.log("Payment Data:", paymentData);
-    const result = await PaymentService.processPayment(paymentData);
-
-    if (result.success) {
-      Alert.alert("Payment Successful", `Payment ID: ${result.paymentId}`);
-    } else {
-      Alert.alert("Payment Failed", result.error);
-    }
-
-  };
-
-
-
-
+  /** --- Fetch Products --- */
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true); // start loading
+      setLoading(true);
       try {
         const response = await fetch(API_URL_VIEW, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phoneNumber: loginData.data.phone }),
         });
-
         const result = await response.json();
-
         if (result?.data && result?.images) {
           const { data, images } = result;
-
-          const mappedProducts = Object.entries(data).map(([id, product], index) => {
+          const mappedProducts = Object.entries(data).map(([id, product]) => {
             const imageUrl = images.find((url) => url.includes(product.image));
-
             return {
               id,
               name: product.name,
@@ -211,96 +89,111 @@ const HistoryPage = () => {
               image: { uri: imageUrl },
             };
           });
-
           setProducts(mappedProducts);
         }
       } catch (error) {
         console.log("Error fetching products:", error);
-        Alert.alert("Error", "Failed to load products. Please try again.");
+        Alert.alert("Error", "Failed to load products.");
       } finally {
-        setLoading(false); // stop loading
+        setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-
-
-
-
-  const [completedOrders, setCompletedOrders] = useState([]);
-
-  const handleTabPress = (index) => {
-    setActiveTab(index);
-    pagerRef.current.setPage(index);
-  };
-
-  const toggleExpand = (orderId) => {
-    setCompletedOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, expanded: !o.expanded } : o))
-    );
-  };
-
-  /** --- Scrollbar Logic --- */
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const [contentHeight, setContentHeight] = useState(1);
-  const [visibleHeight, setVisibleHeight] = useState(1);
-
-  const INDICATOR_HEIGHT = 80;
-
-  const thumbHeight = visibleHeight * (visibleHeight / Math.max(contentHeight, 1));
-
-  const translateY = scrollY.interpolate({
-    inputRange: [0, Math.max(contentHeight - visibleHeight, 1)],
-    outputRange: [0, Math.max(visibleHeight - thumbHeight, 1)],
-    extrapolate: "clamp",
-  });
-
-
+  /** --- Fetch Completed Orders --- */
   useEffect(() => {
     const fetchCompletedOrders = async () => {
+      setLoadingCompleted(true);
       try {
         const response = await fetch(`${BASE_URL}/api/orders/getFranchiseOrders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ franchiseId: loginData.data.phone }),
         });
-
         const result = await response.json();
-        // console.log("Fetched Orders:", result);
-        if (result?.data) {
-          // Map backend data into your UI-friendly structure
-          const mappedOrders = result.data.map((order) => ({
-            id: order.id,
-            date: new Date(order.createdAt).toLocaleDateString(),
-            day: new Date(order.createdAt).toLocaleDateString('en-US', { weekday: 'long' }),
-            time: new Date(order.createdAt).toLocaleTimeString(),
-            expanded: false,
-            products: [], // will fetch product details later
-            amount: order.amount,
-            completed: order.completed,
-            delivered: order.delivered,
-          }));
+        if (result) {
+          const mappedOrders = result.map((order) => {
+            // Parse using the exact format from API
+            console.log(order)
+            const dateObj = dayjs(order.createdAt, "M/D/YYYY, h:mm:ss A");
 
+            return {
+              id: order.id,
+              date: dateObj.format("DD/MM/YYYY"),
+              day: dateObj.format("dddd"),
+              time: dateObj.format("hh:mm A"),
+              expanded: false,
+              products: [
+                {
+                  id: order.itemsId,
+                  name: order.itemId,
+                  qty: 1,
+                  price: order.amount,
+                  image: require("../../assets/curdRice.png"),
+                },
+              ],
+              amount: order.amount,
+              completed: order.completed,
+              delivered: order.delivered,
+            };
+          });
           setCompletedOrders(mappedOrders);
         }
       } catch (error) {
         console.log("Error fetching orders:", error);
         Alert.alert("Error", "Failed to load completed orders.");
+      } finally {
+        setLoadingCompleted(false);
       }
     };
-
     fetchCompletedOrders();
   }, []);
 
+  /** --- Handle Checkout --- */
+  const handleCheckout = async () => {
+    const paymentData = {
+      amount: totalPayment,
+      userID: loginData.data.phone,
+    };
+    const result = await PaymentService.processPayment(paymentData);
+    if (result.success) {
+      Alert.alert("Payment Successful", `Payment ID: ${result.paymentId}`);
+    } else {
+      Alert.alert("Payment Failed", result.error);
+    }
+  };
 
+  /** --- Tab & Expand logic --- */
+  const handleTabPress = (index) => {
+    setActiveTab(index);
+    pagerRef.current.setPage(index);
+  };
+  const toggleExpand = (orderId) => {
+    setCompletedOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, expanded: !o.expanded } : o))
+    );
+  };
+
+  /** --- Scrollbar logic --- */
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [contentHeight, setContentHeight] = useState(1);
+  const [visibleHeight, setVisibleHeight] = useState(1);
+  const INDICATOR_HEIGHT = 80;
+  const thumbHeight = visibleHeight * (visibleHeight / Math.max(contentHeight, 1));
+  const translateY = scrollY.interpolate({
+    inputRange: [0, Math.max(contentHeight - visibleHeight, 1)],
+    outputRange: [0, Math.max(visibleHeight - thumbHeight, 1)],
+    extrapolate: "clamp",
+  });
+
+  /** --- Render --- */
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>
-          <Text style={styles.headerBold}> {loginData.data.name}! Your List</Text>
+          <Text style={styles.headerBold}>{loginData.data.name}! Your List</Text>
         </Text>
         <MaterialIcons name="notifications-none" size={26} color="#000" />
       </View>
@@ -314,10 +207,7 @@ const HistoryPage = () => {
             style={styles.tabContainer}
           >
             <Text
-              style={[
-                styles.tabText,
-                activeTab === index && styles.tabActiveText,
-              ]}
+              style={[styles.tabText, activeTab === index && styles.tabActiveText]}
             >
               {tab}
             </Text>
@@ -333,11 +223,10 @@ const HistoryPage = () => {
         ref={pagerRef}
         onPageSelected={(e) => setActiveTab(e.nativeEvent.position)}
       >
-        {/* PRODUCTS */}
+        {/* PRODUCTS PAGE */}
         <View key="1" style={styles.page}>
           <View style={{ flexDirection: "row", flex: 1, width: "90%" }}>
             {loading ? (
-              // Skeleton loader
               <View style={{ width: "100%", padding: 10 }}>
                 {[...Array(5)].map((_, i) => (
                   <View
@@ -359,7 +248,13 @@ const HistoryPage = () => {
                     />
                     <View style={{ flex: 1 }}>
                       <View
-                        style={{ width: "80%", height: 15, backgroundColor: "#e0e0e0", marginBottom: 6, borderRadius: 4 }}
+                        style={{
+                          width: "80%",
+                          height: 15,
+                          backgroundColor: "#e0e0e0",
+                          marginBottom: 6,
+                          borderRadius: 4,
+                        }}
                       />
                       <View
                         style={{ width: "60%", height: 15, backgroundColor: "#e0e0e0", borderRadius: 4 }}
@@ -407,14 +302,10 @@ const HistoryPage = () => {
               />
             )}
 
-
             {/* Custom Scrollbar */}
             <View style={[styles.scrollbarTrack, { height: visibleHeight }]}>
               <Animated.View
-                style={[
-                  styles.scrollbarThumb,
-                  { height: thumbHeight, transform: [{ translateY }] },
-                ]}
+                style={[styles.scrollbarThumb, { height: thumbHeight, transform: [{ translateY }] }]}
               />
             </View>
           </View>
@@ -434,61 +325,81 @@ const HistoryPage = () => {
               <Text style={styles.totalValue}>₹{totalPayment}.00</Text>
             </View>
             <Text style={styles.paymentOption}>☑ Cash / PhonePe</Text>
-
             <TouchableOpacity style={styles.proceedBtn} onPress={handleCheckout}>
               <Text style={styles.proceedText}>Proceed</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* COMPLETED */}
+        {/* COMPLETED ORDERS PAGE */}
         <View key="2" style={styles.page}>
-          <ScrollView>
-            {completedOrders.map((order) => (
-              <View key={order.id} style={styles.orderCard}>
-                {order.expanded ? (
-                  <View style={{ flexDirection: "row", gap: 20, justifyContent: "space-between" }}>
-                    <View style={{ flexDirection: "column", width: "58%" }}>
-                      {order.products.map((p, idx) => (
-                        <View key={idx} style={styles.expandedRow}>
-                          <Image source={p.image} style={styles.expandedImg} />
-                          <View style={{ flex: 1, marginRight: 10 }}>
-                            <Text style={styles.expandedText}>{p.name}</Text>
-                            <Text style={styles.expandedText}>X{p.qty}</Text>
+          {loadingCompleted ? (
+            <View style={{ width: "100%", padding: 10 }}>
+              {[...Array(3)].map((_, i) => (
+                <View
+                  key={i}
+                  style={{
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: 8,
+                    height: 80,
+                    marginBottom: 12,
+                  }}
+                />
+              ))}
+            </View>
+          ) : (
+            <ScrollView style={{ width: "90%" }} contentContainerStyle={{ paddingBottom: 20 }}>
+              {completedOrders.map((order) => (
+                <View key={order.id} style={styles.orderCard}>
+                  {order.expanded ? (
+                    <View style={{ flexDirection: "row", gap: 20, justifyContent: "space-between" }}>
+                      <View style={{ flexDirection: "column", width: "58%" }}>
+                        {order.products.map((p, idx) => (
+                          <View key={idx} style={styles.expandedRow}>
+                            <Image source={p.image} style={styles.expandedImg} />
+                            <View style={{ flex: 1, marginRight: 10 }}>
+                              <Text style={styles.expandedText}>{p.name}</Text>
+                              <Text style={styles.expandedText}>X{p.qty}</Text>
+                            </View>
+                            <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
                           </View>
-                          <Text style={styles.expandedPrice}>₹{p.price}.00</Text>
-                        </View>
-                      ))}
+                        ))}
+                      </View>
+                      <View style={styles.orderFooter}>
+                        <Text style={styles.dateText}>
+                          Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
+                        </Text>
+                        <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
+                          <Text style={styles.viewText}>View List ▲</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View style={styles.orderFooter}>
+                  ) : (
+                    <View style={styles.orderRow}>
+                      <Image
+                        source={order.products[0]?.image || require("../../assets/Mobilehand.png")}
+                        style={styles.orderImg}
+                      />
                       <Text style={styles.dateText}>
                         Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
                       </Text>
                       <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
-                        <Text style={styles.viewText}>View List ▲</Text>
+                        <Text style={styles.viewText}>View List ▼</Text>
                       </TouchableOpacity>
                     </View>
-                  </View>
-                ) : (
-                  <View style={styles.orderRow}>
-                    <Image source={order.products[0]?.image || require("../../assets/Mobilehand.png")} style={styles.orderImg} />
-                    <Text style={styles.dateText}>
-                      Date: {order.date}{"\n"}Day: {order.day}{"\n"}Time: {order.time}
-                    </Text>
-                    <TouchableOpacity style={styles.viewBtn} onPress={() => toggleExpand(order.id)}>
-                      <Text style={styles.viewText}>View List ▼</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            ))}
-          </ScrollView>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </View>
-
       </PagerView>
     </View>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingTop: height * 0.02 },
