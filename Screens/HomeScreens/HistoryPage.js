@@ -142,7 +142,7 @@ const HistoryPage = () => {
         }
       } catch (error) {
         console.log("Error fetching orders:", error);
-        Alert.alert("Error", "Failed to load completed orders.");
+        // Alert.alert("Error", "Failed to load completed orders.");
       } finally {
         setLoadingCompleted(false);
       }
@@ -348,6 +348,7 @@ const HistoryPage = () => {
               ))}
             </View>
           ) : (
+          (completedOrders).length ?  (
             <ScrollView style={{ width: "90%" }} contentContainerStyle={{ paddingBottom: 20 }}>
               {completedOrders.map((order) => (
                 <View key={order.id} style={styles.orderCard}>
@@ -391,6 +392,7 @@ const HistoryPage = () => {
                 </View>
               ))}
             </ScrollView>
+            ): <Text>No completed orders found.</Text>
           )}
         </View>
       </PagerView>
