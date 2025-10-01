@@ -14,7 +14,7 @@ import {
 import { useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
-import * as DocumentPicker from 'expo-document-picker';
+import { pick, types } from '@react-native-documents/picker';
 import { useNavigation } from '@react-navigation/native';
 import { ActivityIndicator } from "react-native";
 import Toast from "react-native-toast-message";
@@ -90,35 +90,26 @@ const SignupPage = () => {
 
     // Document picker handler
     const handleDocumentPick = async (key) => {
-        try {
-            const res = await DocumentPicker.getDocumentAsync({
-                type: "*/*",
-                copyToCacheDirectory: true,
-                multiple: false,
-            });
+    try {
+        const [file] = await pick({
+            type: [types.allFiles],
+        });
 
-            if (res.canceled) {
-                return;
-            }
-            const asset = res.assets?.[0];
-            if (!asset) {
-                return;
-            }
+        if (!file) return;
 
-            const file = {
-                uri: asset.uri,
-                name: asset.name || `${key}.pdf`,
-                type: asset.mimeType || "application/octet-stream",
-            };
+        setForm((prev) => ({
+            ...prev,
+            [key]: {
+                uri: file.uri,
+                name: file.name || `${key}.pdf`,
+                type: file.mimeType || "application/octet-stream",
+            },
+        }));
+    } catch (err) {
+        console.log("DocumentPicker Error:", err);
+    }
+};
 
-            setForm((prev) => ({
-                ...prev,
-                [key]: file,
-            }));
-        } catch (err) {
-            console.log("DocumentPicker Error:", err);
-        }
-    };
 
     const handleSubmit = async () => {
         // --- Validations ---
