@@ -25,6 +25,7 @@ import { AuthContext } from "../AuthContext";
 
 const { BASE_URL } = Constants.expoConfig.extra;
 const API_URL_VIEW = `${BASE_URL}/api/products/view`;
+const API_URL_ADD = `${BASE_URL}/api/orders/add`;
 
 const { width, height } = Dimensions.get("window");
 
@@ -45,6 +46,7 @@ const HistoryPage = () => {
   const [orderAmount, setOrderAmount] = useState(0);
   const [deliveryCharge, setDeliveryCharge] = useState(50); // fixed
   const [totalPayment, setTotalPayment] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
 
   /** --- Calculate totals whenever products change --- */
   useEffect(() => {
@@ -152,20 +154,86 @@ const HistoryPage = () => {
 
   /** --- Handle Checkout --- */
   const handleCheckout = async () => {
-    const paymentData = {
-      userID: loginData.data.phone,
-      amount: totalPayment ,
-      name: loginData.data.name,
-      email: loginData.data.email || "",
+    if (paymentMethod === "phonepe") {
+      // Existing PhonePe / Razorpay flow
+      const paymentData = {
+        userID: loginData.data.phone,
+        amount: totalPayment,
+        name: loginData.data.name,
+        email: loginData.data.email || "",
+      };
+      console.log("Initiating PhonePe payment:", paymentData);
+      const result = await PaymentService.processPayment(paymentData);
+      if (result.success) {
+        Alert.alert("Payment Successful", `Payment ID: ${result.paymentId}`);
+      } else {
+        Alert.alert("Payment Failed", result.error);
+      }
+    } else if (paymentMethod === "cash") {
+      // Filter products with quantity > 0
+      const cartItems = products.filter(p => p.qty > 0);
+      if (cartItems.length === 0) {
+        Alert.alert("No Items", "Please add items to your order before proceeding.");
+        return;
+      }
+
+
+       const orderPayload = {
+      franchiseId: loginData.data.phone,
+      location: loginData.data.location,
+      items: JSON.stringify(
+        cartItems.reduce((obj, p, ind) => {
+          obj[ind] = {
+            itemId: String(p.id),
+            quantity: Number(p.qty),
+          };
+          return obj;
+        }, {})
+      ),
+      amount: totalPayment,
     };
-    console.log("Initiating payment with data:", paymentData);
-    const result = await PaymentService.processPayment(paymentData);
-    if (result.success) {
-      Alert.alert("Payment Successful", `Payment ID: ${result.paymentId}`);
-    } else {
-      Alert.alert("Payment Failed", result.error);
+
+    console.log("Placing order with payload:", orderPayload);
+      try {
+        const response = await fetch(
+          API_URL_ADD,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderPayload),
+          }
+        );
+
+        // Read text first (safe even if it's HTML)
+        const text = await response.text();
+        console.log("Server raw response:", text);
+
+        // Try JSON parse only if it’s valid JSON
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          Alert.alert("Server Error", "Unexpected response from server.");
+          return;
+        }
+        if (response.ok) {
+          Alert.alert("Order Placed ✅", "Your order has been created!");
+          setProducts(prev => prev.map(p => ({ ...p, qty: 0 })));
+          setActiveTab(1);
+          pagerRef.current?.setPage(1);
+        } else {
+          Alert.alert("Error", data.message || "Failed to place order.");
+        }
+      } catch (err) {
+        console.log(err);
+        Alert.alert("Error", "Something went wrong while placing the order.");
+      }
+
+
     }
   };
+
+
 
 
   /** --- Tab & Expand logic --- */
@@ -328,7 +396,30 @@ const HistoryPage = () => {
               <Text style={styles.totalLabel}>Total Payment</Text>
               <Text style={styles.totalValue}>₹{totalPayment}.00</Text>
             </View>
-            <Text style={styles.paymentOption}>☑ Cash / PhonePe</Text>
+            <View style={styles.paymentOptionsRow}>
+              {/* PhonePe Option */}
+              <TouchableOpacity
+                style={styles.optionRow}
+                onPress={() => setPaymentMethod("phonepe")}
+              >
+                <View style={[styles.checkbox, paymentMethod === "phonepe" && styles.checkedBox]}>
+                  {paymentMethod === "phonepe" && <Text style={styles.checkMark}>✓</Text>}
+                </View>
+                <Text style={styles.optionText}>PhonePe</Text>
+              </TouchableOpacity>
+
+              {/* Cash Option */}
+              <TouchableOpacity
+                style={styles.optionRow}
+                onPress={() => setPaymentMethod("cash")}
+              >
+                <View style={[styles.checkbox, paymentMethod === "cash" && styles.checkedBox]}>
+                  {paymentMethod === "cash" && <Text style={styles.checkMark}>✓</Text>}
+                </View>
+                <Text style={styles.optionText}>Cash</Text>
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity style={styles.proceedBtn} onPress={handleCheckout}>
               <Text style={styles.proceedText}>Proceed</Text>
             </TouchableOpacity>
@@ -604,6 +695,38 @@ const styles = StyleSheet.create({
     width: 6,
     borderRadius: 3,
     backgroundColor: "#000",
+  },
+  paymentOptionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 20,
+  },
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  checkedBox: {
+    backgroundColor: "#000",
+  },
+  checkMark: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  optionText: {
+    fontSize: RFValue(13),
+    fontWeight: "600",
+    color: "#000",
   },
 });
 
