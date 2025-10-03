@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import Mobile from '../assets/Mobilehand.png';
-import { useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import Toast from 'react-native-toast-message';
 import { useAuth } from './AuthContext';
@@ -30,7 +30,7 @@ const API_URL = `${BASE_URL}/api/franchise/login`;
 
 const Page1 = () => {
 
-  const { login, loginData } = useAuth();  // login function from context
+  const { requestOtp, loginData } = useAuth();  // login function from context
 
   const navigator = useNavigation();
 
@@ -43,7 +43,7 @@ const Page1 = () => {
 
 
 
-  
+
 
 
   const isValidPhone = useMemo(() => /^\d{10}$/.test(phoneNumber), [phoneNumber]);
@@ -61,16 +61,21 @@ const Page1 = () => {
 
     setSubmitting(true);  // ✅ start
     try {
-      await login(phoneNumber);   // context handles API + AsyncStorage
+      const result = await requestOtp(phoneNumber);  // context handles API + AsyncStorage
       Toast.show({
         type: 'success',
         text1: 'OTP sent',
         text2: "Enter the OTP we've sent to your phone.",
         visibilityTime: 1000,
       });
+      console.log(result.data?.response?.data?.verificationId);
       setTimeout(() => {
-        navigator.navigate('Otpscreen');  // no need to pass loginData
-      }, 1000);
+      navigator.navigate("Otpscreen", {
+        phone: phoneNumber,
+        verificationId: result.data?.response?.data?.verificationId, 
+        logdata : result.data // ✅ pass verificationId
+      });
+    }, 1000);
     } catch (err) {
       Toast.show({ type: 'error', text1: 'Couldn’t send OTP', text2: err.message });
     } finally {

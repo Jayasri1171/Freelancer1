@@ -6,6 +6,8 @@ import Toast from 'react-native-toast-message';
 
 import { useAuth } from './AuthContext';
 import Constants from 'expo-constants';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const { width, height } = Dimensions.get('window');
 const { BASE_URL } = Constants.expoConfig.extra;
@@ -14,8 +16,9 @@ const VERIFY_OTP_API = `${BASE_URL}/api/franchise/verifyOtp`;
 
 const Otpscreen = () => {
 
-
-      const { login, loginData } = useAuth();
+    const route = useRoute();
+    const { phone, verificationId, logdata } = route.params;
+    const { setLoginData , loginData} = useAuth(); 
     
     const navigator = useNavigation();
     const [checked, setChecked] = useState(false);
@@ -58,9 +61,8 @@ const Otpscreen = () => {
     };
 
 
-     const handleVerify = async () => {
-
-         if (!checked) {
+  const handleVerify = async () => {
+  if (!checked) {
     Toast.show({
       type: 'error',
       text1: 'Agreement Required',
@@ -68,39 +70,66 @@ const Otpscreen = () => {
     });
     return;
   }
-    if (otpDigits.some(d => d === '')) {
-      Toast.show({ type: 'error', text1: 'Invalid OTP', text2: 'Enter all 4 digits' });
-      return;
-    }
 
-    setSubmitting(true);
-    const otp = otpDigits.join('');
-    // console.log(otp);
-    try {
-      const res = await fetch(VERIFY_OTP_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verificationId: loginData.response.data.verificationId, // from login response
-    code: otpDigits.join('') }),
+  if (otpDigits.some(d => d === '')) {
+    Toast.show({
+      type: 'error',
+      text1: 'Invalid OTP',
+      text2: 'Enter all 4 digits',
+    });
+    return;
+  }
+
+  setSubmitting(true);
+  const otp = otpDigits.join('');
+
+  try {
+     const res = await fetch(VERIFY_OTP_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone,
+          verificationId,
+          code: otp,
+        }),
       });
-      console.log(res);
-      console.log({ verificationId: loginData.response.data.verificationId, // from login response
-    code: otpDigits.join('') });
-      const data = await res.json();
+    const data = await res.json();
+    console.log("OTP Verify Response:", data);
 
-      if (!res.ok) throw new Error(data?.message || 'OTP verification failed');
+    // if (data.responseCode != 200) {
+    //   throw new Error(data?.message || 'OTP verification failed');
+    // }
 
-      Toast.show({ type: 'success', text1: 'Verified', text2: 'OTP verified successfully!' });
-        // console.log(res)
-      setTimeout(() => {
-        navigator.navigate('Container');
-      }, 2000);
-    } catch (err) {
-      Toast.show({ type: 'error', text1: 'Verification failed', text2: err.message });
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    // ✅ Save to AsyncStorage only here after OTP success
+    await AsyncStorage.setItem("loginData", JSON.stringify(logdata));
+    await AsyncStorage.setItem("userPhone", phone);
+
+    // Optional: update AuthContext state if you want instant access
+    // data = await logdata.json();
+    setLoginData(logdata);
+    // console.log("loggggg",logdata);
+
+    Toast.show({
+      type: 'success',
+      text1: 'Verified',
+      text2: 'OTP verified successfully!',
+    });
+    // console.log(loginData)
+    setTimeout(() => {
+      navigator.navigate('Container');
+    }, 2000);
+
+  } catch (err) {
+    Toast.show({
+      type: 'error',
+      text1: 'Verification failed',
+      text2: err.message,
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
 
     return (

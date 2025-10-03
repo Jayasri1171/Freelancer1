@@ -66,45 +66,55 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ✅ Login function
-  const login = async (phoneNumber) => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+  // ✅ Request OTP (only send phone + token, don't save yet)
+const requestOtp = async (phoneNumber) => {
+  try {
+    const expoPushToken = await getPushToken();
 
-    try {
-      const expoPushToken = await getPushToken(); // get Expo token
+    const res = await fetch(`${BASE_URL}/api/franchise/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: phoneNumber, fcmToken: expoPushToken }),
+    });
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ phone: phoneNumber, fcmToken: expoPushToken }), // send token to backend
-        signal: controller.signal,
-      });
+    const data = await res.json();
+    console.log(data);
+    if (!res.ok) throw new Error(data?.message || "Failed to request OTP");
 
-      clearTimeout(timeout);
+    // ⚠️ Do NOT save to cache here
 
-      let data = null;
-      try {
-        data = await res.json();
-      } catch {
-        data = null;
-      }
+    // setLoginData(data);
+     return {
+     data
+    };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
 
-      if (!res.ok) {
-        const message = data?.message || data?.error || `Request failed with status ${res.status}`;
-        throw new Error(message);
-      }
+// ✅ Verify OTP (save loginData only if correct)
+const verifyOtp = async (phoneNumber, otp) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/franchise/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: phoneNumber, otp }),
+    });
 
-      // ✅ Save login data + phone
-      setLoginData(data);
-      await AsyncStorage.setItem("loginData", JSON.stringify(data));
-      await AsyncStorage.setItem("userPhone", phoneNumber);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "OTP verification failed");
 
-      return data;
-    } catch (err) {
-      if (err.name === "AbortError") throw new Error("Request timed out. Check your connection.");
-      throw err;
-    }
-  };
+    // ✅ Now only save after correct OTP
+    setLoginData(data);
+    await AsyncStorage.setItem("loginData", JSON.stringify(data));
+    await AsyncStorage.setItem("userPhone", phoneNumber);
+
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
+
 
   // ✅ Logout
   const logout = async () => {
@@ -117,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ loginData, login, logout, loading }}>
+    <AuthContext.Provider value={{ loginData, requestOtp, logout, loading , verifyOtp , setLoginData}}>
       {children}
     </AuthContext.Provider>
   );
